@@ -2,7 +2,7 @@
  * VLCMediaDiscoverer.m: VLCKit.framework VLCMediaDiscoverer implementation
  *****************************************************************************
  * Copyright (C) 2007 Pierre d'Herbemont
- * Copyright (C) 2014-2017 Felix Paul Kühne
+ * Copyright (C) 2014-2017, 2024 Felix Paul Kühne
  * Copyright (C) 2007, 2015 VLC authors and VideoLAN
  * $Id$
  *
@@ -27,6 +27,7 @@
 #import <VLCMediaDiscoverer.h>
 #import <VLCLibrary.h>
 #import <VLCLibVLCBridging.h>
+#import <VLCEventsHandler.h>
 
 #include <vlc/vlc.h>
 #include <vlc/libvlc.h>
@@ -35,6 +36,7 @@
 NSString *const VLCMediaDiscovererName = @"VLCMediaDiscovererName";
 NSString *const VLCMediaDiscovererLongName = @"VLCMediaDiscovererLongName";
 NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
+NSString *const VLCMediaDiscovererUpdatedNotification = @"VLCMediaDiscovererUpdatedNotification";
 
 @interface VLCMediaDiscoverer ()
 {
@@ -43,8 +45,43 @@ NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
 
     VLCLibrary *_privateLibrary;
     dispatch_queue_t _libVLCBackgroundQueue;
+
+    VLCEventsHandler *_eventsHandler;
 }
+- (void)itemAdded:(VLCMedia *)media parent:(VLCMedia *)parent;
+- (void)itemRemoved:(VLCMedia *)media;
+
 @end
+
+static void
+discoverer_item_added(void *opaque, libvlc_media_t *libvlc_parent, libvlc_media_t *libvlc_media)
+{
+    @autoreleasepool {
+        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
+        [eventsHandler handleEvent:^(id _Nonnull object) {
+            VLCMediaDiscoverer *mediaDiscoverer = (VLCMediaDiscoverer *)object;
+            VLCMedia *parent;
+            if (libvlc_parent != NULL) {
+                parent = [VLCMedia mediaWithLibVLCMediaDescriptor:libvlc_parent];
+            }
+            VLCMedia *media = [VLCMedia mediaWithLibVLCMediaDescriptor:libvlc_media];
+            [mediaDiscoverer itemAdded:media parent:parent];
+        }];
+    }
+}
+
+static void
+discoverer_item_removed(void *opaque, libvlc_media_t *libvlc_media)
+{
+    @autoreleasepool {
+        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
+        [eventsHandler handleEvent:^(id _Nonnull object) {
+            VLCMediaDiscoverer *mediaDiscoverer = (VLCMediaDiscoverer *)object;
+            VLCMedia *media = [VLCMedia mediaWithLibVLCMediaDescriptor:libvlc_media];
+            [mediaDiscoverer itemRemoved:media];
+        }];
+    }
+}
 
 @implementation VLCMediaDiscoverer
 @synthesize libraryInstance = _privateLibrary;
@@ -84,7 +121,7 @@ NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
 - (instancetype)initWithName:(NSString *)aServiceName libraryInstance:(nullable VLCLibrary *)libraryInstance
 {
     if (self = [super init]) {
-        _discoveredMedia = nil;
+        _discoveredMedia = [[VLCMediaList alloc] init];
         _libVLCBackgroundQueue = dispatch_queue_create("libvlcQueue", DISPATCH_QUEUE_SERIAL);
 
         if (libraryInstance != nil) {
@@ -93,8 +130,17 @@ NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
             _privateLibrary = [VLCLibrary sharedLibrary];
         }
 
+        _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
+
+        static const struct libvlc_media_discoverer_cbs cbs = {
+            .version = 0,
+            .on_media_added = discoverer_item_added,
+            .on_media_removed = discoverer_item_removed,
+        };
+
         _mdis = libvlc_media_discoverer_new([_privateLibrary instance],
-                                            [aServiceName UTF8String]);
+                                            [aServiceName UTF8String],
+                                            &cbs, (__bridge void *)(_eventsHandler));
 
         if (_mdis == NULL) {
             VKLog(@"media discovery initialization failed, maybe no such module?");
@@ -111,7 +157,7 @@ NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
     if (_mdis) {
         if (libvlc_media_discoverer_is_running(_mdis))
             libvlc_media_discoverer_stop(_mdis);
-        libvlc_media_discoverer_release(_mdis);
+        libvlc_media_discoverer_destroy(_mdis);
     }
 }
 
@@ -122,12 +168,6 @@ NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
         VKLog(@"media discovery start failed");
         return returnValue;
     }
-
-    libvlc_media_list_t *p_mlist = libvlc_media_discoverer_media_list(_mdis);
-    VLCMediaList *ret = [VLCMediaList mediaListWithLibVLCMediaList:p_mlist];
-    libvlc_media_list_release(p_mlist);
-
-    _discoveredMedia = ret;
 
     return returnValue;
 }
@@ -141,6 +181,35 @@ NSString *const VLCMediaDiscovererCategory = @"VLCMediaDiscovererCategory";
     dispatch_async(_libVLCBackgroundQueue, ^{
         libvlc_media_discoverer_stop(_mdis);
     });
+}
+
+- (void)itemAdded:(VLCMedia *)media parent:(VLCMedia *)parent
+{
+    [self willChangeValueForKey:@"discoveredMedia"];
+    if (parent == nil) {
+        [_discoveredMedia addMedia:media];
+    } else {
+        /* FIXME: not sure what to do with with parents */
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:VLCMediaDiscovererUpdatedNotification object:self];
+    [self didChangeValueForKey:@"discoveredMedia"];
+
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mediaAdded:parent:)]) {
+        [self.delegate mediaAdded:media parent:parent];
+    }
+}
+
+- (void)itemRemoved:(VLCMedia *)media
+{
+    [self willChangeValueForKey:@"discoveredMedia"];
+    NSUInteger mediaIndex = [_discoveredMedia indexOfMedia:media];
+    [_discoveredMedia removeMediaAtIndex:mediaIndex];
+    [[NSNotificationCenter defaultCenter] postNotificationName:VLCMediaDiscovererUpdatedNotification object:self];
+    [self didChangeValueForKey:@"discoveredMedia"];
+
+    if (self.delegate && [self.delegate respondsToSelector:@selector(mediaRemoved:)]) {
+        [self.delegate mediaRemoved:media];
+    }
 }
 
 - (nullable VLCMediaList *)discoveredMedia

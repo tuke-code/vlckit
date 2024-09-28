@@ -2,7 +2,7 @@
  * VLCMediaDiscoverer.h: VLCKit.framework VLCMediaDiscoverer header
  *****************************************************************************
  * Copyright (C) 2007 Pierre d'Herbemont
- * Copyright (C) 2015 Felix Paul Kühne
+ * Copyright (C) 2015, 2024 Felix Paul Kühne
  * Copyright (C) 2007, 2015 VLC authors and VideoLAN
  * $Id$
  *
@@ -26,7 +26,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class VLCLibrary, VLCMediaList;
+@class VLCLibrary, VLCMediaList, VLCMedia;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,6 +38,13 @@ typedef NS_ENUM(unsigned, VLCMediaDiscovererCategoryType)
     VLCMediaDiscovererCategoryTypeLocalDirectories
 };
 
+/**
+ * You have 3 options to be notiifed about discovered items
+ * - listed to the VLCMediaDiscovererUpdatedNotification
+ * - use key-value-coding for the discoveredMedia key
+ * - implement a delegate
+ */
+
 /* discoverer keys */
 OBJC_VISIBLE OBJC_EXTERN
 NSString *const VLCMediaDiscovererName;
@@ -45,6 +52,26 @@ OBJC_VISIBLE OBJC_EXTERN
 NSString *const VLCMediaDiscovererLongName;
 OBJC_VISIBLE OBJC_EXTERN
 NSString *const VLCMediaDiscovererCategory;
+OBJC_VISIBLE OBJC_EXTERN
+NSString *const VLCMediaDiscovererUpdatedNotification;
+
+@protocol VLCMediaDiscovererDelegate <NSObject>
+
+@optional
+/**
+ * Delegate method called whenever a media was added.
+ * \param media The media resource that was added.
+ * \param parent The parent of the media resource that was added. Can be nil..
+ */
+- (void)mediaAdded:(VLCMedia *)media parent:(nullable VLCMedia *)parent;
+
+/**
+ * Delegate method called whenever a media was removed.
+ * \param media The media resource that was removed.
+ */
+- (void)mediaRemoved:(VLCMedia *)media;
+
+@end
 
 /**
  * VLCMediaDiscoverer
@@ -57,6 +84,12 @@ OBJC_VISIBLE
  * \note unless for debug, you are wrong if you want to use this selector
  */
 @property (nonatomic, readonly) VLCLibrary *libraryInstance;
+
+/**
+ * a delegate conforming to the VLCMediaDiscovererDelegate protocol
+ * \return the delegate object
+ */
+@property (weak, nullable) id<VLCMediaDiscovererDelegate> delegate;
 
 /**
  * \param categoryType VLCMediaDiscovererCategory you are looking for
