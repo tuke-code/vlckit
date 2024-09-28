@@ -30,37 +30,36 @@
 {
     libvlc_renderer_discoverer_t *_rendererDiscoverer;
     NSMutableArray<VLCRendererItem *> *_rendererItems;
-    VLCEventsHandler* _eventsHandler;
+    VLCEventsHandler *_eventsHandler;
 }
 
 - (void)itemAdded:(VLCRendererItem *)item;
-
 - (void)itemDeleted:(VLCRendererItem *)item;
 
 @end
 
 #pragma mark - LibVLC event callbacks
 
-static void HandleRendererDiscovererItemAdded(const libvlc_event_t *event, void *opaque)
+static void HandleRendererDiscovererItemAdded(void *opaque, libvlc_renderer_item_t *p_item)
 {
     @autoreleasepool {
-        VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:event->u.renderer_discoverer_item_added.item];
-        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler*)opaque;
+        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
         [eventsHandler handleEvent:^(id _Nonnull object) {
             VLCRendererDiscoverer *rendererDiscoverer = (VLCRendererDiscoverer *)object;
+            VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:p_item];
             [rendererDiscoverer itemAdded: renderer];
         }];
     }
 }
 
-static void HandleRendererDiscovererItemDeleted(const libvlc_event_t *event, void *opaque)
+static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_item_t *p_item)
 {
     @autoreleasepool {
-        VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:event->u.renderer_discoverer_item_deleted.item];
-        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler*)opaque;
+        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
         [eventsHandler handleEvent:^(id _Nonnull object) {
             VLCRendererDiscoverer *rendererDiscoverer = (VLCRendererDiscoverer *)object;
-            [rendererDiscoverer itemDeleted:renderer];
+            VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:p_item];
+            [rendererDiscoverer itemDeleted: renderer];
         }];
     }
 }
@@ -98,8 +97,18 @@ static void HandleRendererDiscovererItemDeleted(const libvlc_event_t *event, voi
     self = [super init];
     if (self) {
         NSAssert(name, @"VLCRendererDiscoverer: name is NULL");
+
+        _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
+
+        static const struct libvlc_renderer_discoverer_cbs cbs = {
+            .version = 0,
+            .on_item_added = HandleRendererDiscovererItemAdded,
+            .on_item_removed = HandleRendererDiscovererItemDeleted,
+        };
+
         _name = name;
-        _rendererDiscoverer = libvlc_renderer_discoverer_new([VLCLibrary sharedLibrary].instance, [name UTF8String]);
+        _rendererDiscoverer = libvlc_renderer_discoverer_new([VLCLibrary sharedLibrary].instance, [name UTF8String],
+                                                             &cbs, (__bridge void *)(_eventsHandler));
 
         if (!_rendererDiscoverer) {
             NSAssert(_rendererDiscoverer, @"Failed to create renderer with name %@", name);
@@ -107,14 +116,6 @@ static void HandleRendererDiscovererItemDeleted(const libvlc_event_t *event, voi
         }
 
         _rendererItems = [[NSMutableArray alloc] init];
-        libvlc_event_manager_t *p_em = libvlc_renderer_discoverer_event_manager(_rendererDiscoverer);
-        _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
-        if (p_em) {
-            libvlc_event_attach(p_em, libvlc_RendererDiscovererItemAdded,
-                                HandleRendererDiscovererItemAdded, (__bridge void *)(_eventsHandler));
-            libvlc_event_attach(p_em, libvlc_RendererDiscovererItemDeleted,
-                                HandleRendererDiscovererItemDeleted, (__bridge void *)(_eventsHandler));
-        }
     }
     return self;
 }
@@ -136,17 +137,8 @@ static void HandleRendererDiscovererItemDeleted(const libvlc_event_t *event, voi
 
 - (void)dealloc
 {
-    libvlc_event_manager_t *p_em = libvlc_renderer_discoverer_event_manager(_rendererDiscoverer);
-
-    if (p_em) {
-        libvlc_event_detach(p_em, libvlc_RendererDiscovererItemAdded,
-                            HandleRendererDiscovererItemAdded, (__bridge void *)(_eventsHandler));
-        libvlc_event_detach(p_em, libvlc_RendererDiscovererItemDeleted,
-                            HandleRendererDiscovererItemDeleted, (__bridge void *)(_eventsHandler));
-    }
-
     if (_rendererDiscoverer) {
-        libvlc_renderer_discoverer_release(_rendererDiscoverer);
+        libvlc_renderer_discoverer_destroy(_rendererDiscoverer);
     }
 }
 
