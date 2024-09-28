@@ -2,7 +2,7 @@
  * VLCMediaListPlayer.h: VLCKit.framework VLCMediaListPlayer implementation
  *****************************************************************************
  * Copyright (C) 2009 Pierre d'Herbemont
- * Partial Copyright (C) 2009-2013 Felix Paul Kühne
+ * Partial Copyright (C) 2009-2024 Felix Paul Kühne
  * Copyright (C) 2009-2019 VLC authors and VideoLAN
 
  * $Id$
@@ -42,11 +42,6 @@ typedef NS_ENUM(NSInteger, VLCRepeatMode) {
 
 @protocol VLCMediaListPlayerDelegate <NSObject>
 @optional
-/**
- * Sent when VLCMediaListPlayer has finished playing.
- */
-- (void)mediaListPlayerFinishedPlayback:(VLCMediaListPlayer *)player;
-
 /**
  * Sent when VLCMediaListPlayer going to play next media
  */
