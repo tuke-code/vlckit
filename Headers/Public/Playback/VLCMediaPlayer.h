@@ -55,13 +55,13 @@ FOUNDATION_EXPORT NSNotificationName const VLCMediaPlayerSnapshotTakenNotificati
  */
 typedef NS_ENUM(NSInteger, VLCMediaPlayerState)
 {
-    VLCMediaPlayerStateStopped,        ///< Player has stopped
-    VLCMediaPlayerStateStopping,       ///< Player is stopping
+    VLCMediaPlayerStateNothingSpecial,
     VLCMediaPlayerStateOpening,        ///< Stream is opening
-    VLCMediaPlayerStateBuffering,      ///< Stream is buffering
-    VLCMediaPlayerStateError,          ///< Player has generated an error
     VLCMediaPlayerStatePlaying,        ///< Stream is playing
     VLCMediaPlayerStatePaused,         ///< Stream is paused
+    VLCMediaPlayerStateStopped,        ///< Player has stopped
+    VLCMediaPlayerStateStopping,       ///< Player is stopping
+    VLCMediaPlayerStateError,          ///< Player has generated an error
 };
 
 /**
