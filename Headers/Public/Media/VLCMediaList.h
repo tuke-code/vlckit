@@ -2,7 +2,7 @@
  * VLCMediaList.h: VLCKit.framework VLCMediaList header
  *****************************************************************************
  * Copyright (C) 2007 Pierre d'Herbemont
- * Copyright (C) 2015 Felix Paul Kühne
+ * Copyright (C) 2015, 2024 Felix Paul Kühne
  * Copyright (C) 2007, 2015 VLC authors and VideoLAN
  * $Id$
  *
@@ -27,40 +27,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * notification name if a list item was added
- */
-FOUNDATION_EXPORT NSNotificationName const VLCMediaListItemAddedNotification NS_SWIFT_NAME(VLCMediaList.itemAddedNotification);
-/**
- * notification name if a list item was deleted
- */
-FOUNDATION_EXPORT NSNotificationName const VLCMediaListItemDeletedNotification NS_SWIFT_NAME(VLCMediaList.itemDeletedNotification);
-
 @class VLCMedia;
 @class VLCMediaList;
-
-/**
- * VLCMediaListDelegate
- */
-@protocol VLCMediaListDelegate <NSObject>
-@optional
-/**
- * delegate method triggered when a media was added to the list
- *
- * \param aMediaList the media list
- * \param media the media object that was added
- * \param index the index the media object was added at
- */
-- (void)mediaList:(VLCMediaList *)aMediaList mediaAdded:(VLCMedia *)media atIndex:(NSUInteger)index;
-
-/**
- * delegate method triggered when a media was removed from the list
- *
- * \param aMediaList the media list
- * \param index the index a media item was deleted at
- */
-- (void)mediaList:(VLCMediaList *)aMediaList mediaRemovedAtIndex:(NSUInteger)index;
-@end
 
 /**
  * VLCMediaList
@@ -138,11 +106,6 @@ OBJC_VISIBLE
  * \return the number of media objects
  */
 @property (readonly) NSInteger count;
-
-/**
- * delegate property to listen to addition/removal events
- */
-@property (weak, nonatomic, nullable) id<VLCMediaListDelegate> delegate;
 
 /**
  * read-only property to check if the media list is writable or not
