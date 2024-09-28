@@ -32,7 +32,6 @@
 #import <VLCLibVLCBridging.h>
 #import <VLCTime.h>
 #import <VLCMediaMetaData.h>
-#import <VLCEventsHandler.h>
 #import <VLCMediaParser.h>
 #import <vlc/libvlc.h>
 #import <sys/sysctl.h> // for sysctlbyname
@@ -98,7 +97,6 @@ void close_cb(void *opaque) {
     void *p_md;                            ///< Internal media descriptor instance
     NSInputStream *stream;                 ///< Stream object if instance is initialized via NSInputStream to pass to callbacks
     _Nullable id _userData;                /// libvlc_media_user_data
-    VLCEventsHandler *_eventsHandler;      /// handles libvlc callbacks
     VLCMediaMetaData *_metaData;
     VLCMediaParsedStatus _parsedStatus;    ///< cached parse status, updated when parsing finishes
 }
@@ -107,60 +105,7 @@ void close_cb(void *opaque) {
 @property (nonatomic, readwrite, strong, nullable) VLCMediaList * subitems;
 
 - (void)parseIfNeeded;
-
-/* Callback Methods */
-- (void)metaChanged:(const libvlc_meta_t)metaType;
-- (void)subItemAdded;
-
 @end
-
-/******************************************************************************
- * LibVLC Event Callback
- */
-static void HandleMediaMetaChanged(const libvlc_event_t * event, void * opaque)
-{
-    @autoreleasepool {
-        const libvlc_meta_t meta_type = event->u.media_meta_changed.meta_type;
-        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler*)opaque;
-        [eventsHandler handleEvent:^(id _Nonnull object) {
-            VLCMedia *media = (VLCMedia *)object;
-            [media metaChanged:meta_type];
-        }];
-    }
-}
-
-static void HandleMediaDurationChanged(const libvlc_event_t * event, void * opaque)
-{
-    @autoreleasepool {
-        VLCTime *time = [VLCTime timeWithNumber: @(event->u.media_duration_changed.new_duration)];
-        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler*)opaque;
-        [eventsHandler handleEvent:^(id _Nonnull object) {
-            VLCMedia *media = (VLCMedia *)object;
-            [media setLength:time];
-        }];
-    }
-}
-
-static void HandleMediaSubItemAdded(const libvlc_event_t * event, void * opaque)
-{
-    @autoreleasepool {
-        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler*)opaque;
-        [eventsHandler handleEvent:^(id _Nonnull object) {
-            VLCMedia *media = (VLCMedia *)object;
-            [media subItemAdded];
-        }];
-    }
-}
-
-static const struct event_handler_entry {
-    libvlc_event_type_t type;
-    libvlc_callback_t callback;
-} event_entries[] =
-{
-    { libvlc_MediaMetaChanged,          HandleMediaMetaChanged },
-    { libvlc_MediaDurationChanged,      HandleMediaDurationChanged },
-    { libvlc_MediaSubItemAdded,         HandleMediaSubItemAdded },
-};
 
 /******************************************************************************
  * Implementation
@@ -246,18 +191,6 @@ static const struct event_handler_entry {
 
 - (void)dealloc
 {
-    if (_eventsHandler)
-    {
-        /* We unbind each event from the handler defined in the table above. */
-        libvlc_event_manager_t * p_em = libvlc_media_event_manager(p_md);
-        size_t entry_count = sizeof(event_entries)/sizeof(event_entries[0]);
-        for (size_t i=0; i<entry_count; ++i)
-        {
-            const struct event_handler_entry *entry = &event_entries[i];
-            libvlc_event_detach(p_em, entry->type, entry->callback, (__bridge void *)(_eventsHandler));
-        }
-    }
-
     if (p_md)
         libvlc_media_release(p_md);
 }
@@ -487,17 +420,6 @@ static const struct event_handler_entry {
     if (!_url)
         return;
 
-
-    /* We bind each event to the handler defined in the table above. */
-    libvlc_event_manager_t * p_em = libvlc_media_event_manager(p_md);
-    size_t entry_count = sizeof(event_entries)/sizeof(event_entries[0]);
-    _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
-    for (size_t i=0; i<entry_count; ++i)
-    {
-        const struct event_handler_entry *entry = &event_entries[i];
-        libvlc_event_attach(p_em, entry->type, entry->callback, (__bridge void *)(_eventsHandler));
-    }
-
     libvlc_media_list_t * p_mlist = libvlc_media_subitems( p_md );
 
     if (p_mlist) {
@@ -511,28 +433,6 @@ static const struct event_handler_entry {
     VLCMediaParsedStatus parsedStatus = [self parsedStatus];
     if (parsedStatus == VLCMediaParsedStatusSkipped || parsedStatus == VLCMediaParsedStatusInit)
         [self parseWithOptions:VLCMediaParseLocal | VLCMediaFetchLocal];
-}
-
-- (void)metaChanged:(const libvlc_meta_t)metaType
-{
-    [self.metaData handleMediaMetaChanged: metaType];
-
-    if ([_delegate respondsToSelector:@selector(mediaMetaDataDidChange:)])
-        [_delegate mediaMetaDataDidChange:self];
-}
-
-- (void)subItemAdded
-{
-    if (_subitems)
-        return; /* Nothing to do */
-
-    libvlc_media_list_t * p_mlist = libvlc_media_subitems( p_md );
-
-    NSAssert( p_mlist, @"The mlist shouldn't be nil, we are receiving a subItemAdded");
-
-    self.subitems = [VLCMediaList mediaListWithLibVLCMediaList:p_mlist];
-
-    libvlc_media_list_release( p_mlist );
 }
 
 - (void)parsingFinishedWithStatus:(VLCMediaParsedStatus)status
