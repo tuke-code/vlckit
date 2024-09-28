@@ -26,16 +26,15 @@
 #import <VLCLibrary.h>
 #import <VLCLibVLCBridging.h>
 #import <VLCEventsHandler.h>
+
 #include <vlc/vlc.h>
 
 @interface VLCTranscoder()
 {
     libvlc_media_player_t *_p_mp; //player instance used for transcoding
     dispatch_queue_t _libVLCTranscoderQueue;
-    VLCEventsHandler* _eventsHandler;
+    VLCEventsHandler *_eventsHandler;
 }
-- (void)registerObserversForMuxWithPlayer:(libvlc_media_player_t *)player;
-- (void)unregisterObserversForMuxWithPlayer:(libvlc_media_player_t *)player;
 @end
 
 @implementation VLCTranscoder
@@ -59,57 +58,27 @@
     libvlc_media_add_option(p_media, [[NSString stringWithFormat:@"--sub-file=%@", srtPath] UTF8String]);
     libvlc_media_add_option(p_media, [transcodingOptions UTF8String]);
 
-    _p_mp = libvlc_media_player_new_from_media([[VLCLibrary sharedLibrary] instance], p_media);
+    static const struct libvlc_media_player_cbs cbs = {
+        .version = 0,
+        .on_state_changed = HandleMuxMediaInstanceStateChanged,
+    };
+
+    _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
+    _p_mp = libvlc_media_player_new_from_media([[VLCLibrary sharedLibrary] instance], p_media,
+                                               &cbs, (__bridge void *)_eventsHandler);
     if (_p_mp == NULL) {
         NSAssert(0, @"_p_mp wasn't allocated");
         return NO;
     }
 
-    [self registerObserversForMuxWithPlayer:_p_mp];
     BOOL canPlay = libvlc_media_player_play( _p_mp ) == 0;
-    if (!canPlay) {
-        NSAssert(0, @"playback failed");
-        [self unregisterObserversForMuxWithPlayer:_p_mp];
-        return NO;
-    }
+    NSAssert(canPlay, @"playback failed");
     return canPlay;
-}
-
-- (void)registerObserversForMuxWithPlayer:(libvlc_media_player_t *)player
-{
-    __block libvlc_event_manager_t * p_em = libvlc_media_player_event_manager(player);
-    if (!p_em)
-        return;
-    _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
-    dispatch_sync(_libVLCTranscoderQueue,^{
-        libvlc_event_attach(p_em, libvlc_MediaPlayerPaused,
-                            HandleMuxMediaInstanceStateChanged, (__bridge void *)(_eventsHandler));
-        libvlc_event_attach(p_em, libvlc_MediaPlayerStopped,
-                            HandleMuxMediaInstanceStateChanged, (__bridge void *)(_eventsHandler));
-        libvlc_event_attach(p_em, libvlc_MediaPlayerEncounteredError,
-                            HandleMuxMediaInstanceStateChanged, (__bridge void *)(_eventsHandler));
-    });
-}
-
-- (void)unregisterObserversForMuxWithPlayer:(libvlc_media_player_t *)player
-{
-    libvlc_event_manager_t * p_em = libvlc_media_player_event_manager(player);
-    if (!p_em)
-        return;
-    dispatch_sync(_libVLCTranscoderQueue,^{
-        libvlc_event_detach(p_em, libvlc_MediaPlayerStopped,
-                            HandleMuxMediaInstanceStateChanged, (__bridge void *)(_eventsHandler));
-        libvlc_event_detach(p_em, libvlc_MediaPlayerPaused,
-                            HandleMuxMediaInstanceStateChanged, (__bridge void *)(_eventsHandler));
-        libvlc_event_detach(p_em, libvlc_MediaPlayerEncounteredError,
-                            HandleMuxMediaInstanceStateChanged, (__bridge void *)(_eventsHandler));
-    });
 }
 
 - (void)mediaPlayerStateChangeForMux:(const VLCMediaPlayerState)newState
 {
     if (_p_mp) {
-        [self unregisterObserversForMuxWithPlayer:_p_mp];
         libvlc_media_player_stop_async( _p_mp );
         if ([self.delegate respondsToSelector:@selector(transcode:finishedSucessfully:)]) {
             [self.delegate transcode:self finishedSucessfully: newState != VLCMediaPlayerStateError];
@@ -117,18 +86,21 @@
     }
 }
 
-static void HandleMuxMediaInstanceStateChanged(const libvlc_event_t * event, void * opaque)
+static void HandleMuxMediaInstanceStateChanged(void *opaque, libvlc_state_t state)
 {
+    /* v4's on_state_changed fires for every transition; the muxing operation
+     * only ends on a terminal state, so ignore the rest to avoid stopping the
+     * player as soon as it reaches Opening/Playing. */
     VLCMediaPlayerState newState;
-    if (event->type == libvlc_MediaPlayerPaused) {
-        newState = VLCMediaPlayerStatePaused;
-    } else if(event->type == libvlc_MediaPlayerStopped) {
+    if (state == libvlc_Stopped) {
         newState = VLCMediaPlayerStateStopped;
-    } else {
+    } else if (state == libvlc_Error) {
         newState = VLCMediaPlayerStateError;
+    } else {
+        return;
     }
     @autoreleasepool {
-        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler*)opaque;
+        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
         [eventsHandler handleEvent:^(id _Nonnull object) {
             VLCTranscoder *transcoder = (VLCTranscoder *)object;
             [transcoder mediaPlayerStateChangeForMux: newState];
