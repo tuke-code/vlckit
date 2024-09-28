@@ -70,11 +70,11 @@ int seek_cb(void *opaque, uint64_t offset) {
     if (!stream) {
         return -1;
     }
-    
+
     /*
      By default, NSStream instances that are not file-based are non-seekable, one-way streams (although custom seekable subclasses are possible).
      Once the data has been provided or consumed, the data cannot be retrieved from the stream.
-     
+
      However, you may want a peer subclass to NSInputStream whose instances are capable of seeking through a stream.
      */
     return [stream setProperty:@(offset) forKey:NSStreamFileCurrentOffsetKey] ? 0 : -1;
@@ -224,10 +224,18 @@ static const struct event_handler_entry {
     if ([super init] == nil)
         return nil;
 
-    self->stream = stream;
-    p_md = libvlc_media_new_callbacks(open_cb, read_cb, seek_cb, close_cb, (__bridge void *)(stream));
+    static const struct libvlc_media_open_cbs cbs = {
+        .version = 0,
+        .open = open_cb,
+        .read = read_cb,
+        .seek = seek_cb,
+        .close = close_cb,
+    };
+    p_md = libvlc_media_new_callbacks(&cbs, (__bridge void *)(stream));
     if (p_md == NULL)
         return nil;
+
+    self->stream = stream;
 
     [self initInternalMediaDescriptor];
     return self;
