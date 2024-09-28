@@ -413,23 +413,24 @@ typedef NS_OPTIONS(int, VLCMediaParsingOptions) {
 struct VLCMediaStats
 {
     /* Input */
-    const int         readBytes;
-    const float       inputBitrate;
+    const uint64_t         readBytes;
+    const float            inputBitrate;
     /* Demux */
-    const int         demuxReadBytes;
-    const float       demuxBitrate;
-    const int         demuxCorrupted;
-    const int         demuxDiscontinuity;
+    const uint64_t         demuxReadBytes;
+    const float            demuxBitrate;
+    const uint64_t         demuxCorrupted;
+    const uint64_t         demuxDiscontinuity;
     /* Decoders */
-    const int         decodedVideo;
-    const int         decodedAudio;
+    const uint64_t         decodedVideo;
+    const uint64_t         decodedAudio;
     /* Video Output */
-    const int         displayedPictures;
-    const int         latePictures;
-    const int         lostPictures;
+    const uint64_t         displayedPictures;
+    const uint64_t         latePictures;
+    const uint64_t         lostPictures;
     /* Audio output */
-    const int         playedAudioBuffers;
-    const int         lostAudioBuffers;
+    const uint64_t         playedAudioBuffers;
+    const uint64_t         lostAudioBuffers;
+
 } NS_SWIFT_NAME(VLCMedia.Stats);
 typedef struct VLCMediaStats VLCMediaStats;
 
