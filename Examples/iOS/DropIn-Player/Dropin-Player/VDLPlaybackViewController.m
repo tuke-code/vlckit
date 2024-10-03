@@ -25,6 +25,7 @@
 
 #import "VDLPlaybackViewController.h"
 #import <AVFoundation/AVFoundation.h>
+#import <VLCKit/VLCKit.h>
 
 @interface VDLPlaybackViewController () <UIGestureRecognizerDelegate, UIActionSheetDelegate, VLCMediaPlayerDelegate>
 {
@@ -196,23 +197,23 @@
     [self _resetIdleTimer];
 }
 
-- (void)mediaPlayerStateChanged:(VLCMediaPlayerState)currentState
+- (void)mediaPlayerStateChanged:(VLCMediaPlayerState)newState;
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (currentState == VLCMediaPlayerStateBuffering) {
-            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-            [_mediaplayer performSelector:@selector(setTextRendererFont:) withObject:[defaults objectForKey:kVLCSettingSubtitlesFont]];
-            [_mediaplayer performSelector:@selector(setTextRendererFontSize:) withObject:[defaults objectForKey:kVLCSettingSubtitlesFontSize]];
-            [_mediaplayer performSelector:@selector(setTextRendererFontColor:) withObject:[defaults objectForKey:kVLCSettingSubtitlesFontColor]];
-            [_mediaplayer performSelector:@selector(setTextRendererFontForceBold:) withObject:[defaults objectForKey:kVLCSettingSubtitlesBoldFont]];
-        }
+    if (newState == VLCMediaPlayerStateOpening) {
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+        [_mediaplayer performSelector:@selector(setTextRendererFont:) withObject:[defaults objectForKey:kVLCSettingSubtitlesFont]];
+        [_mediaplayer performSelector:@selector(setTextRendererFontSize:) withObject:[defaults objectForKey:kVLCSettingSubtitlesFontSize]];
+        [_mediaplayer performSelector:@selector(setTextRendererFontColor:) withObject:[defaults objectForKey:kVLCSettingSubtitlesFontColor]];
+        [_mediaplayer performSelector:@selector(setTextRendererFontForceBold:) withObject:[defaults objectForKey:kVLCSettingSubtitlesBoldFont]];
+    }
 
-        /* distruct view controller on error */
-        if (currentState == VLCMediaPlayerStateError)
+    dispatch_async(dispatch_get_main_queue(), ^{
+        /* destruct view controller on error */
+        if (newState == VLCMediaPlayerStateError)
             [self performSelector:@selector(closePlayback:) withObject:nil afterDelay:2.];
 
         /* or if playback ended */
-        if (currentState == VLCMediaPlayerStateStopping || currentState == VLCMediaPlayerStateStopped)
+        if (newState == VLCMediaPlayerStateStopping || newState == VLCMediaPlayerStateStopped)
             [self performSelector:@selector(closePlayback:) withObject:nil afterDelay:2.];
 
         [self.playPauseButton setTitle:[_mediaplayer isPlaying]? @"Pause" : @"Play" forState:UIControlStateNormal];
@@ -311,11 +312,12 @@
 - (IBAction)switchAudioTrack:(id)sender
 {
     _audiotrackActionSheet = [[UIActionSheet alloc] initWithTitle:@"audio track selector" delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles: nil];
-    NSArray *audioTracks = _mediaplayer.audioTracks;
-
-    for (VLCMediaPlayerTrack *audioTrack in audioTracks) {
-        NSString *indexIndicator = audioTrack.isSelected ? @"\u2713": @"";
-        NSString *buttonTitle = [NSString stringWithFormat:@"%@ %@", indexIndicator, audioTrack.trackName];
+    NSArray *tracks = _mediaplayer.audioTracks;
+    NSUInteger count = [tracks count];
+    for (NSUInteger i = 0; i < count; i++) {
+        VLCMediaPlayerTrack *iter = tracks[i];
+        NSString *indexIndicator = iter.isSelected ? @"\u2713" : @"";
+        NSString *buttonTitle = [NSString stringWithFormat:@"%@ %@", indexIndicator, iter.trackName];
         [_audiotrackActionSheet addButtonWithTitle:buttonTitle];
     }
 
@@ -326,16 +328,16 @@
 
 - (IBAction)switchSubtitleTrack:(id)sender
 {
-    NSArray *spuTracks = _mediaplayer.textTracks;
-
-    NSUInteger count = [spuTracks count];
+    _subtitleActionSheet = [[UIActionSheet alloc] initWithTitle:@"subtitle track selector" delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles: nil];
+    NSArray *tracks = _mediaplayer.textTracks;
+    NSUInteger count = [tracks count];
     if (count <= 1)
         return;
-    _subtitleActionSheet = [[UIActionSheet alloc] initWithTitle:@"subtitle track selector" delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles: nil];
 
-    for (VLCMediaPlayerTrack *spuTrack in spuTracks) {
-        NSString *indexIndicator = spuTrack.selected ? @"\u2713": @"";
-        NSString *buttonTitle = [NSString stringWithFormat:@"%@ %@", indexIndicator, spuTrack.trackName];
+    for (NSUInteger i = 0; i < count; i++) {
+        VLCMediaPlayerTrack *iter = tracks[i];
+        NSString *indexIndicator = iter.isSelected ? @"\u2713" : @"";
+        NSString *buttonTitle = [NSString stringWithFormat:@"%@ %@", indexIndicator, iter.trackName];
         [_subtitleActionSheet addButtonWithTitle:buttonTitle];
     }
 
@@ -348,11 +350,15 @@
     if (buttonIndex == [actionSheet cancelButtonIndex])
         return;
 
-    NSArray *indexArray;
+    NSArray *tracks;
     if (actionSheet == _subtitleActionSheet) {
-        [_mediaplayer selectTrackAtIndex:buttonIndex type:VLCMediaTrackTypeText];
+        tracks = _mediaplayer.textTracks;
     } else if (actionSheet == _audiotrackActionSheet) {
-        [_mediaplayer selectTrackAtIndex:buttonIndex type:VLCMediaTrackTypeAudio];
+        tracks = _mediaplayer.audioTracks;
+    }
+    if (buttonIndex < tracks.count) {
+        VLCMediaPlayerTrack *selectedTrack = tracks[buttonIndex];
+        selectedTrack.selectedExclusively = YES;
     }
 }
 
