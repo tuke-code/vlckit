@@ -7,7 +7,6 @@ framework module VLCKit {
   exclude header "vlc/libvlc_media_list_player.h"
   exclude header "vlc/libvlc_media_player.h"
   exclude header "vlc/libvlc_media_track.h"
-  exclude header "vlc/libvlc_events.h"
   exclude header "vlc/vlc.h"
   exclude header "vlc/libvlc_media_discoverer.h"
   exclude header "vlc/libvlc.h"
@@ -17,6 +16,8 @@ framework module VLCKit {
   exclude header "vlc/libvlc_picture.h"
   exclude header "vlc/libvlc_media_library.h"
   exclude header "vlc/libvlc_video.h"
+  exclude header "vlc/libvlc_thumbnailer.h"
+  exclude header "vlc/libvlc_parser.h"
 
   export *
   module * { export * }
