@@ -9,18 +9,17 @@
 /* Begin PBXBuildFile section */
 		7D33AF85285A1FB10074C528 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D33AF84285A1FB10074C528 /* UIKit.framework */; };
 		7D33AF87285A1FB90074C528 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D33AF86285A1FB90074C528 /* Foundation.framework */; };
+		7D4121EC2CB6A25B00216EBE /* VLCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D4121EB2CB6A25B00216EBE /* VLCKit.framework */; };
 		7DA1A01F1D37D759001DA053 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA1A01C1D37D759001DA053 /* AppDelegate.m */; };
 		7DA1A0201D37D759001DA053 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA1A01E1D37D759001DA053 /* ViewController.m */; };
 		7DA1A0221D37D764001DA053 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7DA1A0211D37D764001DA053 /* Assets.xcassets */; };
 		7DA1A0261D37E2FB001DA053 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DA1A0251D37E2FB001DA053 /* main.m */; };
 		7DA1A0291D37E31E001DA053 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DA1A0271D37E31E001DA053 /* Main.storyboard */; };
 		7DA1A02C1D37E326001DA053 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7DA1A02A1D37E326001DA053 /* LaunchScreen.storyboard */; };
-		7DA975DA2DCF7C4800A7F2F5 /* VLCKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DA975D92DCF7C4800A7F2F5 /* VLCKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7D3035901D37CDE400C39EC3 /* VLCMetadataParser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VLCMetadataParser.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7D3035AA1D37CEA900C39EC3 /* libMobileVLCKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMobileVLCKit.a; path = "../../build/Debug-iphoneos/libMobileVLCKit.a"; sourceTree = "<group>"; };
 		7D3035AC1D37CF7A00C39EC3 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		7D3035AE1D37CF7F00C39EC3 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		7D3035B01D37CF8600C39EC3 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
@@ -29,9 +28,9 @@
 		7D3035B61D37CFB600C39EC3 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		7D3035B81D37CFBD00C39EC3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		7D3035BA1D37CFCD00C39EC3 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		7D33AF82285A1FAD0074C528 /* MobileVLCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = MobileVLCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D33AF84285A1FB10074C528 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		7D33AF86285A1FB90074C528 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		7D4121EB2CB6A25B00216EBE /* VLCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = VLCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DA1A01B1D37D759001DA053 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = VLCMetadataParser/AppDelegate.h; sourceTree = SOURCE_ROOT; };
 		7DA1A01C1D37D759001DA053 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = VLCMetadataParser/AppDelegate.m; sourceTree = SOURCE_ROOT; };
 		7DA1A01D1D37D759001DA053 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = VLCMetadataParser/ViewController.h; sourceTree = SOURCE_ROOT; };
@@ -41,7 +40,6 @@
 		7DA1A0281D37E31E001DA053 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = VLCMetadataParser/Base.lproj/Main.storyboard; sourceTree = SOURCE_ROOT; };
 		7DA1A02B1D37E326001DA053 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = VLCMetadataParser/Base.lproj/LaunchScreen.storyboard; sourceTree = SOURCE_ROOT; };
 		7DA1A02D1D37E33E001DA053 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = VLCMetadataParser/Info.plist; sourceTree = SOURCE_ROOT; };
-		7DA975D92DCF7C4800A7F2F5 /* VLCKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = VLCKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,7 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7DA975DA2DCF7C4800A7F2F5 /* VLCKit.framework in Frameworks */,
+				7D4121EC2CB6A25B00216EBE /* VLCKit.framework in Frameworks */,
 				7D33AF87285A1FB90074C528 /* Foundation.framework in Frameworks */,
 				7D33AF85285A1FB10074C528 /* UIKit.framework in Frameworks */,
 			);
@@ -103,10 +101,9 @@
 		7D3035BC1D37CFF500C39EC3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				7DA975D92DCF7C4800A7F2F5 /* VLCKit.framework */,
+				7D4121EB2CB6A25B00216EBE /* VLCKit.framework */,
 				7D33AF86285A1FB90074C528 /* Foundation.framework */,
 				7D33AF84285A1FB10074C528 /* UIKit.framework */,
-				7D33AF82285A1FAD0074C528 /* MobileVLCKit.framework */,
 				7D3035BA1D37CFCD00C39EC3 /* CoreMedia.framework */,
 				7D3035B81D37CFBD00C39EC3 /* AVFoundation.framework */,
 				7D3035B61D37CFB600C39EC3 /* libiconv.tbd */,
@@ -115,7 +112,6 @@
 				7D3035B01D37CF8600C39EC3 /* VideoToolbox.framework */,
 				7D3035AE1D37CF7F00C39EC3 /* AudioToolbox.framework */,
 				7D3035AC1D37CF7A00C39EC3 /* AudioUnit.framework */,
-				7D3035AA1D37CEA900C39EC3 /* libMobileVLCKit.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
