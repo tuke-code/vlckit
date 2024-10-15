@@ -95,7 +95,6 @@ void close_cb(void *opaque) {
 {
     libvlc_media_t *p_md;                            ///< Internal media descriptor instance
     NSInputStream *stream;                 ///< Stream object if instance is initialized via NSInputStream to pass to callbacks
-    _Nullable id _userData;                /// libvlc_media_user_data
     VLCMediaMetaData *_metaData;
     VLCMediaParsedStatus _parsedStatus;    ///< cached parse status, updated when parsing finishes
 }
@@ -362,18 +361,6 @@ void close_cb(void *opaque) {
     return array;
 }
 
-- (nullable id)userData
-{
-    return (__bridge _Nullable id)libvlc_media_get_user_data(p_md);
-}
-
-- (void)setUserData:(nullable id)userData
-{
-    _userData = userData;
-    
-    libvlc_media_set_user_data(p_md, (__bridge void *)userData);
-}
-
 /******************************************************************************
  * Implementation VLCMedia ()
  */
@@ -435,7 +422,6 @@ void close_cb(void *opaque) {
     libvlc_media_retain(md);
     p_md = md;
 
-    _userData = (__bridge _Nullable id)libvlc_media_get_user_data(p_md);
     [self initInternalMediaDescriptor];
     return self;
 }
