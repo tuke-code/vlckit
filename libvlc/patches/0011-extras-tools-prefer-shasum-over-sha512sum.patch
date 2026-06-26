@@ -1,4 +1,4 @@
-From 604c446e6a7a3940458fe036cff228e7b99aca6d Mon Sep 17 00:00:00 2001
+From 7a6f6f4826b0b759531c0f2433365e0a2244902d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Felix=20Paul=20K=C3=BChne?= <felix@feepk.net>
 Date: Tue, 5 Nov 2024 11:38:17 +0100
 Subject: [PATCH 11/12] extras/tools: prefer shasum over sha512sum
@@ -10,7 +10,7 @@ variant of that tool.
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/extras/tools/tools.mak b/extras/tools/tools.mak
-index 9dfc863f91..355dd5eec1 100644
+index 8ab3eb9d1b..e3399bcf5b 100644
 --- a/extras/tools/tools.mak
 +++ b/extras/tools/tools.mak
 @@ -25,10 +25,10 @@ else
@@ -28,5 +28,5 @@ index 9dfc863f91..355dd5eec1 100644
  SHA512SUM = openssl dgst -sha512
  else
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 

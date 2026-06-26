@@ -702,12 +702,12 @@ static const struct event_handler_entry {
     if (track->psz_description)
         _trackDescription = @(track->psz_description);
 
-    if (track->i_type == libvlc_track_audio && track->audio)
-        _audio = [[VLCMediaAudioTrack alloc] initWithAudioTrack: track->audio];
-    else if (track->i_type == libvlc_track_video && track->video)
-        _video = [[VLCMediaVideoTrack alloc] initWithVideoTrack: track->video];
-    else if (track->i_type == libvlc_track_text && track->subtitle)
-        _text = [[VLCMediaTextTrack alloc] initWithSubtitleTrack: track->subtitle];
+    if (track->i_type == libvlc_track_audio && track->u.audio)
+        _audio = [[VLCMediaAudioTrack alloc] initWithAudioTrack: track->u.audio];
+    else if (track->i_type == libvlc_track_video && track->u.video)
+        _video = [[VLCMediaVideoTrack alloc] initWithVideoTrack: track->u.video];
+    else if (track->i_type == libvlc_track_text && track->u.subtitle)
+        _text = [[VLCMediaTextTrack alloc] initWithSubtitleTrack: track->u.subtitle];
     return self;
 }
 

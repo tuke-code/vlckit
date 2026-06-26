@@ -1,4 +1,4 @@
-From a189c3e5355529455e467dc1c4b7209424181027 Mon Sep 17 00:00:00 2001
+From 9fe8466452c6c138d341ce32ba0dc6d9dce23563 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Felix=20Paul=20K=C3=BChne?= <felix@feepk.net>
 Date: Fri, 22 Jul 2016 11:11:44 +0200
 Subject: [PATCH 07/12] contrib/ffmpeg: use audiotoolbox on iOS for AC-3
@@ -39,7 +39,7 @@ index 0000000000..2d60cf7140
 +         in_format.mSampleRate = avctx->sample_rate ? avctx->sample_rate : 44100;
 +         in_format.mChannelsPerFrame = avctx->channels ? avctx->channels : 1;
 diff --git a/contrib/src/ffmpeg/rules.mak b/contrib/src/ffmpeg/rules.mak
-index 9c9220d076..20340a644b 100644
+index a3668fb5e1..9fc86c9a83 100644
 --- a/contrib/src/ffmpeg/rules.mak
 +++ b/contrib/src/ffmpeg/rules.mak
 @@ -41,6 +41,12 @@ FFMPEGCONF = --prefix="$(PREFIX)" --enable-static --disable-shared \
@@ -55,7 +55,7 @@ index 9c9220d076..20340a644b 100644
  endif
  
  ifdef ENABLE_PDB
-@@ -239,6 +245,7 @@ ffmpeg: ffmpeg-$(FFMPEG_VERSION).tar.xz .sum-ffmpeg
+@@ -242,6 +248,7 @@ ffmpeg: ffmpeg-$(FFMPEG_VERSION).tar.xz .sum-ffmpeg
  	$(APPLY) $(SRC)/ffmpeg/0001-fix-mf_utils-compilation-with-mingw64.patch
  	$(APPLY) $(SRC)/ffmpeg/0011-avcodec-videotoolboxenc-disable-calls-on-unsupported.patch
  	$(APPLY) $(SRC)/ffmpeg/avcodec-fix-compilation-visionos.patch
@@ -64,5 +64,5 @@ index 9c9220d076..20340a644b 100644
  
  .ffmpeg: ffmpeg
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 

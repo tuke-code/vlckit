@@ -1,4 +1,4 @@
-From 9bdc96950592791d0b68a59d70d73ef43f45f8e5 Mon Sep 17 00:00:00 2001
+From bf72eaed36471dd7d179c4302c9fa9621c956ebc Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Felix=20Paul=20K=C3=BChne?= <felix@feepk.net>
 Date: Wed, 8 Apr 2026 18:02:16 +0200
 Subject: [PATCH 12/12] json: use function pointers to avoid duplicate symbols
@@ -241,7 +241,7 @@ index 7560654e2d..e3a9661607 100644
      int val = json_parse(&sys, &p_lookup->json);
      free(p_buffer);
 diff --git a/modules/stream_out/chromecast/chromecast_ctrl.cpp b/modules/stream_out/chromecast/chromecast_ctrl.cpp
-index 1a923dfa23..bcbbfe2a2e 100644
+index 7e18708483..f9f8ae640c 100644
 --- a/modules/stream_out/chromecast/chromecast_ctrl.cpp
 +++ b/modules/stream_out/chromecast/chromecast_ctrl.cpp
 @@ -58,7 +58,7 @@ struct chromecast_ctrl_json {
@@ -271,7 +271,7 @@ index 1a923dfa23..bcbbfe2a2e 100644
      memcpy(buf, sys->string, s);
  
      sys->string += s;
-@@ -610,9 +610,14 @@ bool intf_sys_t::processMessage(const castchannel::CastMessage &msg)
+@@ -616,9 +616,14 @@ bool intf_sys_t::processMessage(const castchannel::CastMessage &msg)
          return true;
      }
  
@@ -290,5 +290,5 @@ index 1a923dfa23..bcbbfe2a2e 100644
      struct json_object json;
      int val = json_parse(&sys, &json);
 -- 
-2.39.5 (Apple Git-154)
+2.50.1 (Apple Git-155)
 
