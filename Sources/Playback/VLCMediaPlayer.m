@@ -1047,6 +1047,55 @@ static void HandleMediaPlayerRecord(void *opaque, bool recording,
     return libvlc_media_player_program_scrambled(_playerInstance);
 }
 
+- (BOOL)setABLoopFromTime:(VLCTime *)from toTime:(VLCTime *)to
+{
+    if (from == nil || to == nil)
+        return NO;
+
+    const libvlc_time_t a_time = [[from value] longLongValue] * 1000;
+    const libvlc_time_t b_time = [[to value] longLongValue] * 1000;
+    return libvlc_media_player_set_abloop_time(_playerInstance, a_time, b_time) == 0;
+}
+
+- (BOOL)setABLoopFromPosition:(double)from toPosition:(double)to
+{
+    return libvlc_media_player_set_abloop_position(_playerInstance, from, to) == 0;
+}
+
+- (BOOL)resetABLoop
+{
+    return libvlc_media_player_reset_abloop(_playerInstance) == 0;
+}
+
+- (VLCMediaPlayerABLoopState)abLoopState
+{
+    libvlc_time_t a_time = 0, b_time = 0;
+    double a_pos = 0., b_pos = 0.;
+    return (VLCMediaPlayerABLoopState)libvlc_media_player_get_abloop(_playerInstance, &a_time, &a_pos, &b_time, &b_pos);
+}
+
+- (nullable VLCTime *)abLoopStartTime
+{
+    libvlc_time_t a_time = 0, b_time = 0;
+    double a_pos = 0., b_pos = 0.;
+    const libvlc_abloop_t state = libvlc_media_player_get_abloop(_playerInstance, &a_time, &a_pos, &b_time, &b_pos);
+    if (state == libvlc_abloop_none)
+        return nil;
+
+    return [VLCTime timeWithNumber:@(a_time / 1000)];
+}
+
+- (nullable VLCTime *)abLoopEndTime
+{
+    libvlc_time_t a_time = 0, b_time = 0;
+    double a_pos = 0., b_pos = 0.;
+    const libvlc_abloop_t state = libvlc_media_player_get_abloop(_playerInstance, &a_time, &a_pos, &b_time, &b_pos);
+    if (state != libvlc_abloop_b)
+        return nil;
+
+    return [VLCTime timeWithNumber:@(b_time / 1000)];
+}
+
 - (int)numberOfChaptersForTitle:(int)titleIndex
 {
     if (titleIndex >= 0) {

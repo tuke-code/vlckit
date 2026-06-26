@@ -574,6 +574,41 @@ typedef NS_ENUM(unsigned, VLCMediaPlaybackSlaveType)
 @property (nonatomic, readonly, getter=isProgramScrambled) BOOL programScrambled;
 
 #pragma mark -
+#pragma mark A-B loop
+
+typedef NS_ENUM(NSUInteger, VLCMediaPlayerABLoopState) {
+    VLCMediaPlayerABLoopStateNone = 0,
+    VLCMediaPlayerABLoopStateA,
+    VLCMediaPlayerABLoopStateB
+} NS_SWIFT_NAME(VLCMediaPlayer.ABLoopState);
+
+/**
+ * enable an A-B loop between two times of the current media
+ * \param from the loop start time
+ * \param to the loop end time, must be later than from
+ * \return YES on success
+ */
+- (BOOL)setABLoopFromTime:(VLCTime *)from toTime:(VLCTime *)to;
+
+/**
+ * enable an A-B loop between two positions of the current media
+ * \param from the loop start position in the range [0., 1.]
+ * \param to the loop end position, must be higher than from
+ * \return YES on success
+ */
+- (BOOL)setABLoopFromPosition:(double)from toPosition:(double)to;
+
+/**
+ * reset/remove the A-B loop of the current media
+ * \return YES on success
+ */
+- (BOOL)resetABLoop;
+
+@property (nonatomic, readonly) VLCMediaPlayerABLoopState abLoopState;
+@property (nonatomic, readonly, nullable) VLCTime *abLoopStartTime;
+@property (nonatomic, readonly, nullable) VLCTime *abLoopEndTime;
+
+#pragma mark -
 #pragma mark audio functionality
 
 /**
