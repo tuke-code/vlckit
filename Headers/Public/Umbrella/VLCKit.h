@@ -27,6 +27,7 @@
 #import <VLCKit/VLCAudio.h>
 #import <VLCKit/VLCLibrary.h>
 #import <VLCKit/VLCMedia.h>
+#import <VLCKit/VLCMediaSlave.h>
 #import <VLCKit/VLCMediaDiscoverer.h>
 #import <VLCKit/VLCMediaList.h>
 #import <VLCKit/VLCMediaPlayer.h>
