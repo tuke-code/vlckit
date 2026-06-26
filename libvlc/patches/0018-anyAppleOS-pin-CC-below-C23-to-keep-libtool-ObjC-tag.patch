@@ -1,0 +1,34 @@
+From ec388f3d702f0efb52bcc5e6ce888d6bd9d0a273 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Felix=20Paul=20K=C3=BChne?= <felix@feepk.net>
+Date: Fri, 26 Jun 2026 20:30:48 +0200
+Subject: [PATCH] anyAppleOS: pin CC below C23 to keep libtool ObjC tag
+ inference working
+
+autoconf 2.73 adds -std=gnu23 to CC but not OBJC, so libtool can no
+longer infer the tag for .m compiles and aborts. Pinning CC off C23
+restores the match.
+---
+ extras/package/macosx/env.build.sh | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/extras/package/macosx/env.build.sh b/extras/package/macosx/env.build.sh
+index 88df879f87..377e733b20 100755
+--- a/extras/package/macosx/env.build.sh
++++ b/extras/package/macosx/env.build.sh
+@@ -115,8 +115,13 @@ vlcSetSymbolEnvironment() {
+     # - Added symbols in macOS 10.13 / iOS 11 / watchOS 4 / tvOS 11
+     # - Added symbol in macOS 10.14 / iOS 12 / tvOS 9
+     # - Added symbols in macOS 10.15 / iOS 13 / tvOS 13
++    #
++    # ac_cv_prog_cc_c23: pin CC below C23 so it matches OBJC; new autoconf
++    # adds -std=gnu23 to CC but not OBJC, breaking libtool's ObjC tag inference.
+     "${cmd}" "$@" \
+     \
++    ac_cv_prog_cc_c23=no \
++    \
+     ac_cv_func_basename_r=no \
+     ac_cv_func_clock_getres=no \
+     ac_cv_func_clock_gettime=no \
+-- 
+2.50.1 (Apple Git-155)
+
