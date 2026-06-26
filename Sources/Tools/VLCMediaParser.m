@@ -1,7 +1,7 @@
 /*****************************************************************************
- * VLCMediaParser.h
+ * VLCMediaParser.m
  *****************************************************************************
- * Copyright (C) 2024 VLC authors and VideoLAN
+ * Copyright (C) 2024-2026 VLC authors and VideoLAN
  *
  * Authors: Felix Paul Kühne <fkuehne # videolan.org
  *
@@ -34,6 +34,7 @@ static VLCMediaParser * sharedParser = nil;
 {
     libvlc_parser_t *_parser;
     NSMutableDictionary *_mediaDict;
+    NSMutableDictionary *_taskDict;
     VLCEventsHandler *_eventHandler;
 }
 
@@ -104,6 +105,7 @@ static const struct libvlc_parser_cbs parser_cbs = {
         _eventHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
         _parser = libvlc_parser_new(library.instance, &cfg);
         _mediaDict = [[NSMutableDictionary alloc] init];
+        _taskDict = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -116,9 +118,12 @@ static const struct libvlc_parser_cbs parser_cbs = {
 - (void)parseEndedForMedia:(libvlc_media_t *)p_media withStatus:(VLCMediaParsedStatus)status
 {
     NSValue *valueKey = [NSValue valueWithPointer:p_media];
-    VLCMedia *media = [_mediaDict objectForKey:valueKey];
-
-    [_mediaDict removeObjectForKey:valueKey];
+    VLCMedia *media;
+    @synchronized (self) {
+        media = [_mediaDict objectForKey:valueKey];
+        [_mediaDict removeObjectForKey:valueKey];
+        [_taskDict removeObjectForKey:valueKey];
+    }
 
     [media parsingFinishedWithStatus:status];
 
@@ -144,16 +149,39 @@ static const struct libvlc_parser_cbs parser_cbs = {
     };
 
     NSValue *valueKey = [NSValue valueWithPointer:p_media];
-    [_mediaDict setObject:media forKey:valueKey];
+    @synchronized (self) {
+        [_mediaDict setObject:media forKey:valueKey];
 
-    /* On success the task handle is owned by us until the on_parsed callback
-     * fires; it is released there (see media_parse_ended). */
-    libvlc_parser_task *task = libvlc_parser_queue(_parser, &request, &parser_cbs, (__bridge void *)_eventHandler);
-    if (task == NULL) {
-        [_mediaDict removeObjectForKey:valueKey];
-        return -1;
+        libvlc_parser_task *task = libvlc_parser_queue(_parser, &request, &parser_cbs, (__bridge void *)_eventHandler);
+        if (task == NULL) {
+            [_mediaDict removeObjectForKey:valueKey];
+            return -1;
+        }
+        [_taskDict setObject:[NSValue valueWithPointer:task] forKey:valueKey];
     }
     return 0;
+}
+
+- (void)cancelParsingForMedia:(VLCMedia *)media
+{
+    if (media == nil)
+        return;
+
+    libvlc_media_t *p_media = [media libVLCMediaDescriptor];
+    if (p_media == NULL)
+        return;
+
+    NSValue *valueKey = [NSValue valueWithPointer:p_media];
+    @synchronized (self) {
+        NSValue *taskValue = [_taskDict objectForKey:valueKey];
+        if (taskValue != nil)
+            libvlc_parser_cancel_request(_parser, [taskValue pointerValue]);
+    }
+}
+
+- (void)cancelAllParsing
+{
+    libvlc_parser_cancel_request(_parser, NULL);
 }
 
 @end

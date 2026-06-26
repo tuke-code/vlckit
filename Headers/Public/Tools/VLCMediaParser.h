@@ -1,7 +1,7 @@
 /*****************************************************************************
  * VLCMediaParser.h
  *****************************************************************************
- * Copyright (C) 2024 VLC authors and VideoLAN
+ * Copyright (C) 2024-2026 VLC authors and VideoLAN
  *
  * Authors: Felix Paul Kühne <fkuehne # videolan.org
  *
@@ -94,6 +94,17 @@ typedef NS_OPTIONS(int, VLCMediaParsingOptions) {
  * \see VLCMediaParsingOptions
  */
 - (int)queueMedia:(VLCMedia *)media options:(VLCMediaParsingOptions)options;
+
+/**
+ * Cancels a pending parse request for the given media.
+ * \param media the media whose parsing should be cancelled
+ */
+- (void)cancelParsingForMedia:(VLCMedia *)media;
+
+/**
+ * Cancels all pending parse requests.
+ */
+- (void)cancelAllParsing;
 
 @end
 
