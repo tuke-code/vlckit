@@ -26,10 +26,11 @@
 #import "ViewController.h"
 #import <VLCKit/VLCKit.h>
 
-@interface ViewController () <VLCMediaThumbnailerDelegate, VLCMediaDelegate>
+@interface ViewController () <VLCMediaThumbnailerDelegate>
 {
     UIImageView *_imageView;
     UIActivityIndicatorView *_activityIndicatorView;
+    VLCMediaThumbnailer *_thumbnailer;
 }
 @end
 
@@ -53,21 +54,20 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
+
     [_activityIndicatorView startAnimating];
     VLCLibrary *sharedLibrary = [VLCLibrary sharedLibrary];
     VLCConsoleLogger *consoleLogger = [[VLCConsoleLogger alloc] init];
     consoleLogger.level = kVLCLogLevelDebug;
     [sharedLibrary setLoggers:@[consoleLogger]];
-    VLCMedia *media = [VLCMedia mediaWithURL:[NSURL URLWithString:@"http://streams.videolan.org/streams/mp4/Mr_MrsSmith-h264_aac.mp4"]];
-    media.delegate = self;
-    [[VLCMediaParser sharedParser] queueMedia:media options:VLCMediaParseLocal|VLCMediaFetchLocal|VLCMediaParseNetwork|VLCMediaFetchNetwork];
-    [super viewDidAppear:animated];
-}
 
-- (void)mediaDidFinishParsing:(VLCMedia *)aMedia
-{
-    VLCMediaThumbnailer *thumbnailer = [VLCMediaThumbnailer thumbnailerWithMedia:aMedia delegate:self andVLCLibrary:[VLCLibrary sharedLibrary]];
-    [thumbnailer fetchThumbnail];
+    VLCMedia *media = [VLCMedia mediaWithURL:[NSURL URLWithString:@"http://streams.videolan.org/streams/mp4/Mr_MrsSmith-h264_aac.mp4"]];
+
+    // the thumbnailer opens and parses the media itself, so no pre-parsing is needed;
+    // keep a strong reference to it until a delegate callback arrives
+    _thumbnailer = [VLCMediaThumbnailer thumbnailerWithMedia:media delegate:self andVLCLibrary:sharedLibrary];
+    [_thumbnailer fetchThumbnail];
 }
 
 - (void)mediaThumbnailerDidTimeOut:(VLCMediaThumbnailer *)mediaThumbnailer
