@@ -1,8 +1,7 @@
 /*****************************************************************************
  * VLCKit: VLCMediaThumbnailer
  *****************************************************************************
- * Copyright (C) 2010-2012 Pierre d'Herbemont and VideoLAN
- * Copyright (C) 2026 VLC authors and VideoLAN
+ * Copyright (C) 2010-2026 Pierre d'Herbemont and VideoLAN
  *
  * Authors: Pierre d'Herbemont
  *          Felix Paul Kühne <fkuehne # videolan.org
@@ -37,8 +36,12 @@
     CGImageRef _thumbnail;
     CGFloat _thumbnailHeight, _thumbnailWidth;
     float _snapshotPosition;
+    VLCTime *_snapshotTime;
+    BOOL _hardwareDecodingEnabled, _preciseSeek, _cropsToFit;
     VLCLibrary *_library;
     libvlc_parser_t *_parser;
+    libvlc_parser_task *_task;
+    BOOL _cancelled;
     VLCEventsHandler *_eventsHandler;
 }
 
@@ -97,7 +100,6 @@ static void thumbnailer_on_ended(void *opaque, libvlc_parser_task *task, libvlc_
             VLCMediaThumbnailer *thumbnailer = (VLCMediaThumbnailer *)object;
             [thumbnailer handleThumbnailPicture:retained];
         }];
-        libvlc_parser_task_release(task);
     }
 }
 
@@ -113,6 +115,10 @@ static const struct libvlc_thumbnailer_cbs thumbnailer_cbs = {
 @synthesize thumbnailWidth=_thumbnailWidth;
 @synthesize thumbnailHeight=_thumbnailHeight;
 @synthesize snapshotPosition=_snapshotPosition;
+@synthesize snapshotTime=_snapshotTime;
+@synthesize hardwareDecodingEnabled=_hardwareDecodingEnabled;
+@synthesize preciseSeek=_preciseSeek;
+@synthesize cropsToFit=_cropsToFit;
 
 + (VLCMediaThumbnailer *)thumbnailerWithMedia:(VLCMedia *)media andDelegate:(id<VLCMediaThumbnailerDelegate>)delegate
 {
@@ -132,6 +138,8 @@ static const struct libvlc_thumbnailer_cbs thumbnailer_cbs = {
 {
     if (_parser != NULL)
         libvlc_parser_destroy(_parser);
+    if (_task != NULL)
+        libvlc_parser_task_release(_task);
     if (_thumbnail)
         CGImageRelease(_thumbnail);
 }
@@ -151,7 +159,6 @@ static const struct libvlc_thumbnailer_cbs thumbnailer_cbs = {
 
     const unsigned int imageWidth = _thumbnailWidth > 0 ? (unsigned int)_thumbnailWidth : kDefaultImageWidth;
     const unsigned int imageHeight = _thumbnailHeight > 0 ? (unsigned int)_thumbnailHeight : kDefaultImageHeight;
-    const double snapshotPosition = _snapshotPosition > 0 ? _snapshotPosition : kSnapshotPosition;
 
     // remote media may take considerably longer to open than a local file
     const BOOL isLocal = [_media.url.scheme isEqualToString:@"file"];
@@ -167,28 +174,49 @@ static const struct libvlc_thumbnailer_cbs thumbnailer_cbs = {
 
     _eventsHandler = [VLCEventsHandler handlerWithObject:self configuration:[VLCLibrary sharedEventsConfiguration]];
 
-    const libvlc_thumbnailer_request_t request = {
-        .version = 0,
-        .media = p_media,
-        .width = imageWidth,
-        .height = imageHeight,
-        .crop = false,
-        .type = libvlc_picture_Rgba,
-        .seek = {
-            .type = libvlc_thumbnailer_seek_pos,
-            .value = { .pos = snapshotPosition },
-            .speed = libvlc_media_thumbnail_seek_fast,
-        },
-        .hw_dec = false,
-    };
+    libvlc_thumbnailer_request_t request = { 0 };
+    request.version = 0;
+    request.media = p_media;
+    request.width = imageWidth;
+    request.height = imageHeight;
+    request.crop = _cropsToFit;
+    request.type = libvlc_picture_Rgba;
+    request.hw_dec = _hardwareDecodingEnabled;
+    request.seek.speed = _preciseSeek ? libvlc_media_thumbnail_seek_precise : libvlc_media_thumbnail_seek_fast;
+    if (_snapshotTime != nil) {
+        request.seek.type = libvlc_thumbnailer_seek_time;
+        request.seek.value.time = (libvlc_time_t)[[_snapshotTime value] longLongValue] * 1000; // ms -> us
+    } else {
+        request.seek.type = libvlc_thumbnailer_seek_pos;
+        request.seek.value.pos = _snapshotPosition > 0 ? _snapshotPosition : kSnapshotPosition;
+    }
 
-    libvlc_parser_task *task = libvlc_parser_queue_thumbnailing(_parser, &request, &thumbnailer_cbs, (__bridge void *)_eventsHandler);
-    if (task == NULL)
+    _task = libvlc_parser_queue_thumbnailing(_parser, &request, &thumbnailer_cbs, (__bridge void *)_eventsHandler);
+    if (_task == NULL)
         [_thumbnailingDelegate mediaThumbnailerDidTimeOut:self];
+}
+
+- (void)cancel
+{
+    @synchronized (self) {
+        _cancelled = YES;
+        if (_parser != NULL && _task != NULL)
+            libvlc_parser_cancel_request(_parser, _task);
+    }
 }
 
 - (void)handleThumbnailPicture:(nullable libvlc_picture_t *)picture
 {
+    BOOL cancelled;
+    @synchronized (self) {
+        cancelled = _cancelled;
+    }
+    if (cancelled) {
+        if (picture != NULL)
+            libvlc_picture_release(picture);
+        return;
+    }
+
     CGImageRef image = picture ? VLCThumbnailCGImageCreate(picture) : NULL;
     if (image == NULL) {
         [_thumbnailingDelegate mediaThumbnailerDidTimeOut:self];

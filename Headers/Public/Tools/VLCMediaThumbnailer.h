@@ -1,7 +1,7 @@
 /*****************************************************************************
  * VLCKit: VLCMediaThumbnailer
  *****************************************************************************
- * Copyright (C) 2010-2012 Pierre d'Herbemont and VideoLAN
+ * Copyright (C) 2010-2026 Pierre d'Herbemont and VideoLAN
  *
  * Authors: Pierre d'Herbemont
  *
@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class VLCMedia, VLCLibrary;
+@class VLCMedia, VLCLibrary, VLCTime;
 @protocol VLCMediaThumbnailerDelegate;
 
 /**
@@ -57,6 +57,12 @@ OBJC_VISIBLE
 - (void)fetchThumbnail;
 
 /**
+ * Cancels an ongoing thumbnailing process
+ * \note no delegate callback will be sent once cancelled
+ */
+- (void)cancel;
+
+/**
  * delegate object associated with the thumbnailer instance implementing the required protocol
  */
 @property (readwrite, weak, nonatomic, nullable) id<VLCMediaThumbnailerDelegate> delegate;
@@ -70,27 +76,50 @@ OBJC_VISIBLE
 @property (readwrite, assign, nonatomic, nullable) CGImageRef thumbnail;
 /**
  * Thumbnail Height
- * You shouldn't change this after -fetchThumbnail
- * has been called.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
  * @return thumbnail height. Default value 240.
  */
 @property (readwrite, assign, nonatomic) CGFloat thumbnailHeight;
 
 /**
  * Thumbnail Width
- * You shouldn't change this after -fetchThumbnail
- * has been called.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
  * @return thumbnail height. Default value 320
  */
 @property (readwrite, assign, nonatomic) CGFloat thumbnailWidth;
 
 /**
  * Snapshot Position
- * You shouldn't change this after -fetchThumbnail
- * has been called.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
  * @return snapshot position. Default value 0.3
  */
 @property (readwrite, assign, nonatomic) float snapshotPosition;
+
+/**
+ * Snapshot Time
+ * When set, the thumbnail is taken at this time and snapshotPosition is ignored.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
+ */
+@property (readwrite, nonatomic, nullable) VLCTime *snapshotTime;
+
+/**
+ * Whether hardware decoding is used while thumbnailing. Default NO.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
+ */
+@property (readwrite, assign, nonatomic) BOOL hardwareDecodingEnabled;
+
+/**
+ * Whether the thumbnailer seeks precisely rather than fast (the default). Default NO.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
+ */
+@property (readwrite, assign, nonatomic) BOOL preciseSeek;
+
+/**
+ * Whether the thumbnail is cropped to fit thumbnailWidth x thumbnailHeight.
+ * Only meaningful when both width and height are non-zero. Default NO.
+ * \note Any change made after -fetchThumbnail has been called is ignored.
+ */
+@property (readwrite, assign, nonatomic) BOOL cropsToFit;
 @end
 
 /**
