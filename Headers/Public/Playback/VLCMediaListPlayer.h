@@ -26,6 +26,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
+#import "VLCMediaPlayer.h"
+
 @class VLCMedia, VLCMediaPlayer, VLCMediaList, VLCMediaListPlayer;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -136,6 +138,16 @@ OBJC_VISIBLE
  * See VLCRepeatMode.
  */
 @property (readwrite) VLCRepeatMode repeatMode;
+
+/**
+ * whether the list player is currently playing
+ */
+@property (nonatomic, readonly, getter=isPlaying) BOOL playing;
+
+/**
+ * the current playback state of the list player
+ */
+@property (nonatomic, readonly) VLCMediaPlayerState state;
 
 /**
  * media must be in the current media list.

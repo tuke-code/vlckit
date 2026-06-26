@@ -240,6 +240,16 @@ static void HandleStateChanged(void *opaque, libvlc_state_t state)
     return _repeatMode;
 }
 
+- (BOOL)isPlaying
+{
+    return libvlc_media_list_player_is_playing(instance);
+}
+
+- (VLCMediaPlayerState)state
+{
+    return (VLCMediaPlayerState)libvlc_media_list_player_get_state(instance);
+}
+
 #pragma mark - Delegate methods
 
 - (void)mediaListPlayerNextItemSet:(VLCMedia *)media
