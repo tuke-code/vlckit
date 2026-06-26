@@ -35,6 +35,7 @@
 #import <VLCKit/VLCMediaListPlayer.h>
 #import <VLCKit/VLCMediaThumbnailer.h>
 #import <VLCKit/VLCMediaParser.h>
+#import <VLCKit/VLCMediaDownloader.h>
 #import <VLCKit/VLCMediaMetaData.h>
 #import <VLCKit/VLCTime.h>
 #import <VLCKit/VLCFilter.h>

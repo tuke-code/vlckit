@@ -30,6 +30,10 @@
 		7D6263182BA5D6FB00FAE5E1 /* StaticLibVLC.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D797FB41DF41EBA00AD93ED /* StaticLibVLC.m */; };
 		7D6586242FEEDAF00021A4EC /* VLCMediaSlave.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D6586232FEEDAF00021A4EC /* VLCMediaSlave.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7D6586262FEEDB040021A4EC /* VLCMediaSlave.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6586252FEEDB040021A4EC /* VLCMediaSlave.m */; };
+		7D6586282FEEDB760021A4EC /* VLCMediaDownloader.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D6586272FEEDB760021A4EC /* VLCMediaDownloader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7D65862A2FEEDCD00021A4EC /* VLCMediaDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7D6586292FEEDCD00021A4EC /* VLCMediaDownloader.m */; };
+		7D65862F2FEEE3210021A4EC /* libvlc_downloader.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D65862E2FEEE3210021A4EC /* libvlc_downloader.h */; };
+		7D6586302FEEE3290021A4EC /* libvlc_downloader.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7D65862E2FEEE3210021A4EC /* libvlc_downloader.h */; };
 		7D6C89211C0CA90000321894 /* VLCAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 4B49C5FB1BC3D7870052D40C /* VLCAudio.m */; };
 		7D797FC41DF41F9100AD93ED /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D797FC31DF41F9100AD93ED /* libc++.tbd */; };
 		7D797FC61DF41F9500AD93ED /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D797FC51DF41F9500AD93ED /* libiconv.tbd */; };
@@ -195,6 +199,7 @@
 			dstSubfolderSpec = 6;
 			files = (
 				7DFB523028D0B2EA0020DCDE /* libvlc_dialog.h in CopyFiles */,
+				7D6586302FEEE3290021A4EC /* libvlc_downloader.h in CopyFiles */,
 				7DEBDB07203C5727000A7D2F /* libvlc_media_discoverer.h in CopyFiles */,
 				7DEBDB09203C5727000A7D2F /* libvlc_media_list_player.h in CopyFiles */,
 				7DEBDB0A203C5727000A7D2F /* libvlc_media_list.h in CopyFiles */,
@@ -260,6 +265,9 @@
 		7D6263122BA5D61D00FAE5E1 /* libvlc_version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libvlc_version.h; path = Headers/libvlc/libvlc_version.h; sourceTree = "<group>"; };
 		7D6586232FEEDAF00021A4EC /* VLCMediaSlave.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VLCMediaSlave.h; sourceTree = "<group>"; };
 		7D6586252FEEDB040021A4EC /* VLCMediaSlave.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VLCMediaSlave.m; sourceTree = "<group>"; };
+		7D6586272FEEDB760021A4EC /* VLCMediaDownloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VLCMediaDownloader.h; sourceTree = "<group>"; };
+		7D6586292FEEDCD00021A4EC /* VLCMediaDownloader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VLCMediaDownloader.m; sourceTree = "<group>"; };
+		7D65862E2FEEE3210021A4EC /* libvlc_downloader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = libvlc_downloader.h; path = libvlc/vlc/include/vlc/libvlc_downloader.h; sourceTree = "<group>"; };
 		7D66193624D1F5DC00781E5D /* Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Prefix.pch; sourceTree = "<group>"; };
 		7D6C891F1C0CA81F00321894 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		7D797FB41DF41EBA00AD93ED /* StaticLibVLC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StaticLibVLC.m; path = Sources/core/StaticLibVLC.m; sourceTree = SOURCE_ROOT; };
@@ -680,6 +688,7 @@
 				636E975711EBC67A002FE8A9 /* VLCMediaThumbnailer.m */,
 				6360B0E111E7F0C000EAD790 /* VLCMediaDiscoverer.m */,
 				7DED47F32CA83E3300B9358A /* VLCMediaParser.m */,
+				7D6586292FEEDCD00021A4EC /* VLCMediaDownloader.m */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -829,6 +838,7 @@
 				636E979011EBC96D002FE8A9 /* VLCMediaThumbnailer.h */,
 				6360B0E311E7F0D300EAD790 /* VLCMediaDiscoverer.h */,
 				7DED47F22CA83E3300B9358A /* VLCMediaParser.h */,
+				7D6586272FEEDB760021A4EC /* VLCMediaDownloader.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -880,6 +890,7 @@
 			isa = PBXGroup;
 			children = (
 				7DFB522628D0B2840020DCDE /* libvlc_dialog.h */,
+				7D65862E2FEEE3210021A4EC /* libvlc_downloader.h */,
 				7DEBDAEA203C56D5000A7D2F /* libvlc_media_discoverer.h */,
 				7DEBDAE2203C56D5000A7D2F /* libvlc_media_list_player.h */,
 				7DEBDADF203C56D4000A7D2F /* libvlc_media_list.h */,
@@ -1029,6 +1040,7 @@
 				7DE26F3A2BA72DB2000CC89C /* VLCStreamOutput.h in Headers */,
 				7DED47F42CA83E3300B9358A /* VLCMediaParser.h in Headers */,
 				7DE26F392BA72DA9000CC89C /* VLCTranscoder.h in Headers */,
+				7D65862F2FEEE3210021A4EC /* libvlc_downloader.h in Headers */,
 				7DF2DFB72BABF82A00835369 /* VLCVideoCommon.h in Headers */,
 				7DDC02121B501ECF0078FC84 /* VLCTime.h in Headers */,
 				3CD18254298D8C9900E466A3 /* VLCAudioEqualizer.h in Headers */,
@@ -1049,6 +1061,7 @@
 				7D6586242FEEDAF00021A4EC /* VLCMediaSlave.h in Headers */,
 				6C953202297EDC7500F41EC8 /* VLCEventsHandler.h in Headers */,
 				7DFDF4E81C9AF25600BA86A6 /* VLCEmbeddedDialogProvider.h in Headers */,
+				7D6586282FEEDB760021A4EC /* VLCMediaDownloader.h in Headers */,
 				7DFDF4E91C9AF25600BA86A6 /* VLCiOSLegacyDialogProvider.h in Headers */,
 				7DFB522328D0B27B0020DCDE /* libvlc_media_track.h in Headers */,
 				7DAA11B2203C5727000A7D2F /* libvlc_parser.h in Headers */,
@@ -1222,6 +1235,7 @@
 				7DFB520B28D0AA590020DCDE /* VLCAdjustFilter.m in Sources */,
 				7DFDF4E21C9AF17800BA86A6 /* VLCDialogProvider.m in Sources */,
 				7D8939421B500D50008F2B14 /* VLCMedia.m in Sources */,
+				7D65862A2FEEDCD00021A4EC /* VLCMediaDownloader.m in Sources */,
 				7DA7745A2A838BEB006E3273 /* VLCEventsConfiguration.m in Sources */,
 				7DB683D71C996187000C70BE /* VLCHelperCode.m in Sources */,
 				7D8939431B500D50008F2B14 /* VLCMediaList.m in Sources */,
