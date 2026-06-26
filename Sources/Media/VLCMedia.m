@@ -288,6 +288,11 @@ void close_cb(void *opaque) {
     }];
 }
 
+- (void)addOption:(NSString *)option withFlags:(VLCMediaOption)flags
+{
+    libvlc_media_add_option_flag(p_md, [option UTF8String], (unsigned)flags);
+}
+
 - (int)storeCookie:(NSString *)cookie
            forHost:(NSString *)host
               path:(NSString *)path

@@ -309,6 +309,21 @@ typedef NS_ENUM(int, VLCMediaFileStatReturnType) {
 - (void)addOptions:(NSDictionary*)options;
 
 /**
+ * flags controlling how a media option is interpreted, matching libvlc_media_option_t
+ */
+typedef NS_OPTIONS(unsigned, VLCMediaOption) {
+    VLCMediaOptionTrusted = 0x2,
+    VLCMediaOptionUnique  = 0x100
+} NS_SWIFT_NAME(VLCMedia.Option);
+
+/**
+ * Add an option to the media with the given flags.
+ * \param option the option as a string
+ * \param flags the flags for this option
+ */
+- (void)addOption:(NSString *)option withFlags:(VLCMediaOption)flags;
+
+/**
  * Parse a value of an incoming Set-Cookie header (see RFC 6265) and append the
  * cookie to the stored cookies if appropriate. The "secure" attribute can be added
  * to cookie to limit the scope of the cookie to secured channels (https).
