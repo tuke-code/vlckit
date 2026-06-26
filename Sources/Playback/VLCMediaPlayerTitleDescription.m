@@ -126,8 +126,9 @@
     if (self = [super init]) {
         _mediaPlayer = mediaPlayer;
         _name = chapter_description->psz_name ? @(chapter_description->psz_name) : nil;
-        _timeOffset = [VLCTime timeWithNumber: @(chapter_description->i_time_offset)];
-        _durationTime = [VLCTime timeWithNumber: @(chapter_description->i_duration)];
+        // chapter time-offset and duration are in microseconds; VLCTime is in milliseconds
+        _timeOffset = [VLCTime timeWithNumber: @(chapter_description->i_time_offset / 1000)];
+        _durationTime = [VLCTime timeWithNumber: @(chapter_description->i_duration / 1000)];
         _chapterIndex = chapterIndex;
         _titleIndex = titleIndex;
         _mediaURL = mediaPlayer.media.url;
@@ -248,7 +249,8 @@
     if (self = [super init]) {
         _mediaPlayer = mediaPlayer;
         _name = title_description->psz_name ? @(title_description->psz_name) : nil;
-        _durationTime = [VLCTime timeWithNumber: @(title_description->i_duration)];
+        // title duration is in microseconds; VLCTime is in milliseconds
+        _durationTime = [VLCTime timeWithNumber: @(title_description->i_duration / 1000)];
         _titleType = (VLCMediaPlayerTitleType)title_description->i_flags;
         _titleIndex = titleIndex;
         _mediaURL = mediaPlayer.media.url;

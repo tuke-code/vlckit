@@ -388,7 +388,7 @@ static void HandleMediaPlayerLengthChanged(void *opaque, libvlc_time_t length)
         [eventsHandler handleEvent:^(id _Nonnull object) {
             VLCMediaPlayer *mediaPlayer = (VLCMediaPlayer *)object;
             if ([mediaPlayer.delegate respondsToSelector:@selector(mediaPlayerLengthChanged:)])
-                [mediaPlayer.delegate mediaPlayerLengthChanged:length];
+                [mediaPlayer.delegate mediaPlayerLengthChanged:length / 1000];
         }];
     }
 }
@@ -822,9 +822,9 @@ static void HandleMediaPlayerRecord(void *opaque, bool recording,
 
 - (void)setTime:(VLCTime *)value
 {
-    // Time is managed in seconds, while duration is managed in microseconds
-    // TODO: Redo VLCTime to provide value numberAsMilliseconds, numberAsMicroseconds, numberAsSeconds, numberAsMinutes, numberAsHours
-    libvlc_media_player_set_time(_playerInstance, value ? [[value value] longLongValue] : 0, NO);
+    // VLCTime is in milliseconds; libvlc_media_player_set_time expects microseconds
+    const libvlc_time_t time_us = value ? [[value value] longLongValue] * 1000 : 0;
+    libvlc_media_player_set_time(_playerInstance, time_us, NO);
     [self timeChangeUpdate];
 }
 

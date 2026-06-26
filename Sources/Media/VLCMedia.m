@@ -240,10 +240,11 @@ void close_cb(void *opaque) {
 {
     if (!_length) {
         // Try figuring out what the length is
+        // libvlc_media_get_duration is in microseconds; VLCTime is in milliseconds
         long long duration = libvlc_media_get_duration( p_md );
         if (duration < 0)
             return [VLCTime nullTime];
-         _length = [VLCTime timeWithNumber:@(duration)];
+         _length = [VLCTime timeWithNumber:@(duration / 1000)];
     }
     return _length;
 }
