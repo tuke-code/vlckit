@@ -32,6 +32,7 @@
 #import <VLCLibVLCBridging.h>
 #import <VLCTime.h>
 #import <VLCMediaMetaData.h>
+#import <VLCMediaSlave.h>
 #import <vlc/libvlc.h>
 #import <sys/sysctl.h> // for sysctlbyname
 
@@ -291,6 +292,46 @@ void close_cb(void *opaque) {
 - (void)addOption:(NSString *)option withFlags:(VLCMediaOption)flags
 {
     libvlc_media_add_option_flag(p_md, [option UTF8String], (unsigned)flags);
+}
+
+- (NSArray<VLCMediaSlave *> *)slaves
+{
+    libvlc_media_slave_t **pp_slaves = NULL;
+    const unsigned int count = libvlc_media_slaves_get(p_md, &pp_slaves);
+    if (count == 0)
+        return @[];
+
+    NSMutableArray<VLCMediaSlave *> *slaves = [NSMutableArray arrayWithCapacity:count];
+    for (unsigned int i = 0; i < count; i++) {
+        libvlc_media_slave_t *p_slave = pp_slaves[i];
+        if (p_slave->psz_uri == NULL)
+            continue;
+        NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:p_slave->psz_uri]];
+        if (url == nil)
+            continue;
+        [slaves addObject:[[VLCMediaSlave alloc] initWithURL:url
+                                                        type:(VLCMediaSlaveType)p_slave->i_type
+                                                    priority:p_slave->i_priority]];
+    }
+    libvlc_media_slaves_release(pp_slaves, count);
+    return slaves;
+}
+
+- (BOOL)addSlave:(VLCMediaSlave *)slave
+{
+    NSString *uri = slave.URL.absoluteString;
+    if (uri == nil)
+        return NO;
+
+    return libvlc_media_slaves_add(p_md,
+                                   (libvlc_media_slave_type_t)slave.type,
+                                   (unsigned int)slave.priority,
+                                   [uri UTF8String]) == 0;
+}
+
+- (void)clearSlaves
+{
+    libvlc_media_slaves_clear(p_md);
 }
 
 - (int)storeCookie:(NSString *)cookie

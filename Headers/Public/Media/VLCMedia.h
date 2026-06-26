@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class VLCTime, VLCMediaTrack, VLCMediaMetaData;
+@class VLCTime, VLCMediaTrack, VLCMediaMetaData, VLCMediaSlave;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -322,6 +322,24 @@ typedef NS_OPTIONS(unsigned, VLCMediaOption) {
  * \param flags the flags for this option
  */
 - (void)addOption:(NSString *)option withFlags:(VLCMediaOption)flags;
+
+/**
+ * the external slaves (subtitle or audio) of the media, parsed by VLC or added via -addSlave:
+ */
+@property (nonatomic, readonly, copy) NSArray<VLCMediaSlave *> *slaves;
+
+/**
+ * Add an external slave (e.g. a subtitle or additional audio track) to the media.
+ * \note must be called before the media is parsed or played
+ * \param slave the slave to add
+ * \return YES on success
+ */
+- (BOOL)addSlave:(VLCMediaSlave *)slave;
+
+/**
+ * Remove all slaves previously added with -addSlave: or parsed by VLC.
+ */
+- (void)clearSlaves;
 
 /**
  * Parse a value of an incoming Set-Cookie header (see RFC 6265) and append the
