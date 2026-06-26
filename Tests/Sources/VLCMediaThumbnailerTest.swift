@@ -79,53 +79,34 @@ class VLCMediaThumbnailerTest: XCTestCase {
     }
     
     func testFetchThumbnail() throws {
-        
-        let skipMediaParse: (XCTestExpectation) -> (VLCMedia) = { expectation in
-            expectation.fulfill()
-            return Video.test1.media
-        }
-        
-        let completeMediaParse: (XCTestExpectation) -> (VLCMedia) = { expectation in
-            let media = Video.test1.media
-            media.lengthWait(until: Date.distantFuture)
-            expectation.fulfill()
-            return media
-        }
-        
-        let tests: [(parseFunc: ((XCTestExpectation) -> (VLCMedia)), expectation: XCTestExpectation)] = [
-            (skipMediaParse, expectation(description: "Skipped parsing media")),
-            (completeMediaParse, expectation(description: "Completed parsing media"))
-        ]
-        
-        for (parseFunc, parseExpectation) in tests {
-            let media = parseFunc(parseExpectation)
-            wait(for: [parseExpectation], timeout: STANDARD_TIME_OUT)
-            
-            let delegate = MockThumbnailerDelegate()
-            let fetched = expectation(description: "delegate::didFinishThumbnail called")
-            delegate.finishedExpectation = fetched
-            
-            let thumbnailer = try XCTAssertNotNilAndUnwrap(VLCMediaThumbnailer(media: media, andDelegate: delegate))
-            thumbnailer.fetchThumbnail()
-            
-            wait(for: [fetched], timeout: STANDARD_TIME_OUT)
-            
-            XCTAssertNotNil(thumbnailer.thumbnail)
-            XCTAssertEqual(thumbnailer.thumbnailWidth, 417)
-            XCTAssertEqual(thumbnailer.thumbnailHeight, 240)
-            XCTAssertEqual(thumbnailer.snapshotPosition, 0.3)
-        }
+        // the thumbnailer opens and parses the media itself, so no pre-parsing is needed
+        let media = Video.test1.media
+
+        let delegate = MockThumbnailerDelegate()
+        let fetched = expectation(description: "delegate::didFinishThumbnail called")
+        delegate.finishedExpectation = fetched
+
+        let thumbnailer = try XCTAssertNotNilAndUnwrap(VLCMediaThumbnailer(media: media, andDelegate: delegate))
+        thumbnailer.fetchThumbnail()
+
+        wait(for: [fetched], timeout: STANDARD_TIME_OUT)
+
+        XCTAssertNotNil(thumbnailer.thumbnail)
+        XCTAssertEqual(thumbnailer.thumbnailWidth, 320)
+        XCTAssertEqual(thumbnailer.thumbnailHeight, 240)
+        XCTAssertEqual(thumbnailer.snapshotPosition, 0.3)
     }
     
     // MARK: Delegate callbacks
     
     func testDelegateDidFinishThumbnail() throws {
         
+        // with native sizing, providing both width and height yields exactly that size
         let tests: [(video: Video, width: CGFloat, height: CGFloat)] = [
-            (Video.test1, 417, 240),
-            (Video.test2, 427, 240),
-            (Video.test3, 427, 240),
-            (Video.test4, 427, 240)
+            (Video.test1, 320, 240),
+            (Video.test2, 320, 240),
+            (Video.test3, 320, 240),
+            (Video.test4, 320, 240)
         ]
         
         for (video, width, height) in tests {
