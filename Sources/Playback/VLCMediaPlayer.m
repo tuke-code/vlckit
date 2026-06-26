@@ -1096,6 +1096,16 @@ static void HandleMediaPlayerRecord(void *opaque, bool recording,
     return [VLCTime timeWithNumber:@(b_time / 1000)];
 }
 
+- (VLCVideoFitMode)videoFitMode
+{
+    return (VLCVideoFitMode)libvlc_video_get_display_fit(_playerInstance);
+}
+
+- (void)setVideoFitMode:(VLCVideoFitMode)videoFitMode
+{
+    libvlc_video_set_display_fit(_playerInstance, (libvlc_video_fit_mode_t)videoFitMode);
+}
+
 - (int)numberOfChaptersForTitle:(int)titleIndex
 {
     if (titleIndex >= 0) {

@@ -334,6 +334,22 @@ OBJC_VISIBLE
 - (void)setDeinterlace:(VLCDeinterlace)deinterlace withFilter:(NSString *)name;
 
 /**
+ * Enumeration of values used to fit the video inside the display area.
+ */
+typedef NS_ENUM(NSInteger, VLCVideoFitMode) {
+    VLCVideoFitNone = 0,    ///< explicit zoom set by scaleFactor
+    VLCVideoFitSmaller,     ///< fit to the smallest display dimension
+    VLCVideoFitLarger,      ///< fit to the largest display dimension
+    VLCVideoFitWidth,       ///< fit to the display width
+    VLCVideoFitHeight       ///< fit to the display height
+} NS_SWIFT_NAME(VLCMediaPlayer.VideoFitMode);
+
+/**
+ * how the video is fitted inside the display area
+ */
+@property (nonatomic) VLCVideoFitMode videoFitMode;
+
+/**
  * Access to adjust filter's parameters and properties
  */
 @property (nonatomic, readonly) VLCAdjustFilter * _Nonnull adjustFilter;
