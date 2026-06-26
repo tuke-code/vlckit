@@ -25,9 +25,6 @@
 #import <VLCCustomDialogProvider.h>
 
 #if TARGET_OS_IPHONE
-    #if !(TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION))
-        #import <VLCiOSLegacyDialogProvider.h>
-    #endif
     #import <VLCEmbeddedDialogProvider.h>
 #endif // TARGET_OS_IPHONE
 
@@ -41,15 +38,7 @@
     if (customUI)
         return [[VLCCustomDialogProvider alloc] initWithLibrary:library];
 
-    #if !(TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION))
-        if ([UIAlertController class]) {
-            return [[VLCEmbeddedDialogProvider alloc] initWithLibrary:library];
-        } else {
-            return [[VLCiOSLegacyDialogProvider alloc] initWithLibrary:library];
-        }
-    #else
-        return [[VLCEmbeddedDialogProvider alloc] initWithLibrary:library];
-    #endif
+    return [[VLCEmbeddedDialogProvider alloc] initWithLibrary:library];
 #else
     if (customUI) {
         return [[VLCCustomDialogProvider alloc] initWithLibrary:library];

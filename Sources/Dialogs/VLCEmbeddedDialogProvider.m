@@ -23,7 +23,6 @@
 
 #import <VLCEmbeddedDialogProvider.h>
 #import <VLCLibrary.h>
-#import <VLCiOSLegacyDialogProvider.h>
 #import <VLCEmbeddedDialogProvider.h>
 
 @interface VLCEmbeddedDialogProvider ()
