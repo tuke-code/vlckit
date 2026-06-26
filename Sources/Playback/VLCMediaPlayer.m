@@ -1008,6 +1008,45 @@ static void HandleMediaPlayerRecord(void *opaque, bool recording,
     return currentlyFoundTitle;
 }
 
+- (nullable NSArray<VLCProgramDescription *> *)programs
+{
+    libvlc_player_programlist_t *list = libvlc_media_player_get_programlist(_playerInstance);
+    if (list == NULL)
+        return nil;
+
+    const size_t count = libvlc_player_programlist_count(list);
+    NSMutableArray<VLCProgramDescription *> *array = [NSMutableArray arrayWithCapacity: count];
+    for (size_t i = 0; i < count; i++) {
+        libvlc_player_program_t *program = libvlc_player_programlist_at(list, i);
+        [array addObject: [[VLCProgramDescription alloc] initWithMediaPlayer: self program: program]];
+    }
+    libvlc_player_programlist_delete(list);
+
+    return array;
+}
+
+- (nullable VLCProgramDescription *)selectedProgram
+{
+    libvlc_player_program_t *program = libvlc_media_player_get_selected_program(_playerInstance);
+    if (program == NULL)
+        return nil;
+
+    VLCProgramDescription *description = [[VLCProgramDescription alloc] initWithMediaPlayer: self program: program];
+    libvlc_player_program_delete(program);
+
+    return description;
+}
+
+- (void)selectProgramWithIdentifier:(int)groupID
+{
+    libvlc_media_player_select_program_id(_playerInstance, groupID);
+}
+
+- (BOOL)isProgramScrambled
+{
+    return libvlc_media_player_program_scrambled(_playerInstance);
+}
+
 - (int)numberOfChaptersForTitle:(int)titleIndex
 {
     if (titleIndex >= 0) {

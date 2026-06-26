@@ -276,4 +276,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/**
+ * Bridges functionality between libvlc and VLCProgramDescription implementation.
+ */
+@interface VLCProgramDescription (LibVLCBridging)
+
+- (instancetype)initWithMediaPlayer:(VLCMediaPlayer *)mediaPlayer program:(libvlc_player_program_t *)program;
+
+@end
+
 NS_ASSUME_NONNULL_END

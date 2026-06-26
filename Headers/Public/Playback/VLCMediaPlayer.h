@@ -34,7 +34,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, VLCMediaTrackType) NS_SWIFT_NAME(VLCMedia.TrackType);
-@class VLCLibrary, VLCMedia, VLCTime, VLCAudio, VLCMediaPlayer, VLCMediaPlayerTrack, VLCAdjustFilter, VLCAudioEqualizer, VLCMediaPlayerTitleDescription, VLCMediaPlayerChapterDescription;
+@class VLCLibrary, VLCMedia, VLCTime, VLCAudio, VLCMediaPlayer, VLCMediaPlayerTrack, VLCAdjustFilter, VLCAudioEqualizer, VLCMediaPlayerTitleDescription, VLCMediaPlayerChapterDescription, VLCProgramDescription;
 #if !TARGET_OS_IPHONE
 @class VLCVideoView, VLCVideoLayer;
 #endif // !TARGET_OS_IPHONE
@@ -545,6 +545,33 @@ typedef NS_ENUM(unsigned, VLCMediaPlaybackSlaveType)
  * \return int matching the title index
  */
 @property (readonly) int indexOfLongestTitle;
+
+#pragma mark -
+#pragma mark program selection
+
+/**
+ * the programs of the current media as a snapshot
+ * \return an array describing the available programs
+ */
+@property (nonatomic, readonly, copy, nullable) NSArray<VLCProgramDescription *> *programs;
+
+/**
+ * the currently selected program
+ * \return the selected program, or nil if none is selected
+ */
+@property (nonatomic, readonly, nullable) VLCProgramDescription *selectedProgram;
+
+/**
+ * select a program by its group identifier
+ * \param groupID the program's group identifier
+ */
+- (void)selectProgramWithIdentifier:(int)groupID;
+
+/**
+ * whether the currently selected program is scrambled
+ * \return YES if the selected program is scrambled
+ */
+@property (nonatomic, readonly, getter=isProgramScrambled) BOOL programScrambled;
 
 #pragma mark -
 #pragma mark audio functionality

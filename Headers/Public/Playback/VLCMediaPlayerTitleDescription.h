@@ -180,4 +180,22 @@ NS_SWIFT_NAME(VLCMediaPlayer.TitleDescription)
 
 @end
 
+
+#pragma mark - VLCProgramDescription
+
+NS_SWIFT_NAME(VLCMediaPlayer.ProgramDescription)
+@interface VLCProgramDescription : NSObject
+
+@property (nonatomic, readonly) int groupID;
+@property (nonatomic, readonly, copy, nullable) NSString *name;
+@property (nonatomic, readonly, getter=isSelected) BOOL selected;
+@property (nonatomic, readonly, getter=isScrambled) BOOL scrambled;
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (void)setCurrent;
+
+@end
+
 NS_ASSUME_NONNULL_END

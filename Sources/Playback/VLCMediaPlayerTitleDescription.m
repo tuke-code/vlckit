@@ -287,3 +287,65 @@
 }
 
 @end
+
+
+#pragma mark - VLCProgramDescription
+
+@implementation VLCProgramDescription
+{
+    __weak VLCMediaPlayer *_mediaPlayer;
+}
+
+- (void)setCurrent
+{
+    libvlc_media_player_t *p_mi = _mediaPlayer.libVLCMediaPlayer;
+    if (!p_mi)
+        return;
+
+    libvlc_media_player_select_program_id(p_mi, _groupID);
+}
+
+- (BOOL)isEqual:(id)other
+{
+    if (other == self)
+        return YES;
+    else if (![other isKindOfClass: self.class])
+        return NO;
+
+    VLCProgramDescription *otherProgram = (VLCProgramDescription *)other;
+    return otherProgram.groupID == _groupID &&
+            otherProgram.selected == _selected &&
+            otherProgram.scrambled == _scrambled &&
+            ((otherProgram.name == nil && _name == nil) || [otherProgram.name isEqualToString: _name]);
+}
+
+- (NSUInteger)hash
+{
+    return self.description.hash;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat: @"<%@ %p>, groupID: %d, name: %@, selected: %@, scrambled: %@", self.class, self, _groupID, _name, _selected ? @"YES" : @"NO", _scrambled ? @"YES" : @"NO"];
+}
+
+@end
+
+/**
+ * VLCProgramDescription (LibVLCBridging)
+ */
+@implementation VLCProgramDescription (LibVLCBridging)
+
+- (instancetype)initWithMediaPlayer:(VLCMediaPlayer *)mediaPlayer program:(libvlc_player_program_t *)program
+{
+    if (self = [super init]) {
+        _mediaPlayer = mediaPlayer;
+        _groupID = program->i_group_id;
+        _name = program->psz_name ? @(program->psz_name) : nil;
+        _selected = program->b_selected;
+        _scrambled = program->b_scrambled;
+    }
+    return self;
+}
+
+@end
