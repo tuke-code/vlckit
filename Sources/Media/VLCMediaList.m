@@ -41,6 +41,7 @@
     /* We need that private copy because of Cocoa Bindings, that need to be working on first thread */
     NSMutableArray<VLCMedia *> *_mediaObjects;                   ///< Private copy of media objects.
     dispatch_queue_t _serialMediaObjectsQueue;      ///< Queue for accessing and modifying the mediaobjects
+    NSMapTable<id, NSNumber *> *_indexCache;                     ///< Lazy descriptor->index cache for -indexOfMedia:, invalidated on mutation
 }
 @end
 
@@ -112,6 +113,7 @@
     // Add the media object to our cache
     dispatch_sync(_serialMediaObjectsQueue, ^{
         [_mediaObjects insertObject:media atIndex:index];
+        _indexCache = nil;
     });
 
     // Add it to libvlc's medialist
@@ -129,6 +131,7 @@
             return;
         }
         [_mediaObjects removeObjectAtIndex:index];
+        _indexCache = nil;
     });
 
     // Remove from libvlc's medialist
@@ -147,7 +150,28 @@
 
 - (NSUInteger)indexOfMedia:(VLCMedia *)media
 {
-    return [_mediaObjects indexOfObject:media];
+    libvlc_media_t *p_md = [media libVLCMediaDescriptor];
+    if (p_md == NULL)
+        return NSNotFound;
+
+    __block NSUInteger result = NSNotFound;
+    dispatch_sync(_serialMediaObjectsQueue, ^{
+        if (_indexCache == nil) {
+            _indexCache = [NSMapTable mapTableWithKeyOptions:(NSPointerFunctionsOpaqueMemory | NSPointerFunctionsOpaquePersonality)
+                                                valueOptions:(NSPointerFunctionsStrongMemory | NSPointerFunctionsObjectPersonality)];
+            NSUInteger idx = 0;
+            for (VLCMedia *cachedMedia in _mediaObjects) {
+                libvlc_media_t *md = [cachedMedia libVLCMediaDescriptor];
+                if (md != NULL && [_indexCache objectForKey:(__bridge id)(void *)md] == nil)
+                    [_indexCache setObject:@(idx) forKey:(__bridge id)(void *)md];
+                idx++;
+            }
+        }
+        NSNumber *cachedIndex = [_indexCache objectForKey:(__bridge id)(void *)p_md];
+        if (cachedIndex != nil)
+            result = cachedIndex.unsignedIntegerValue;
+    });
+    return result;
 }
 
 /* KVC Compliance: For the @"media" key */
