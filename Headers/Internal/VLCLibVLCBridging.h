@@ -29,6 +29,7 @@
 #import <VLCMediaPlayer.h>
 #import <VLCMediaList.h>
 #import <VLCMedia.h>
+#import <VLCMediaSlave.h>
 #import <VLCAudio.h>
 #import <VLCMediaMetaData.h>
 #import <VLCAudioEqualizer.h>
@@ -282,6 +283,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface VLCProgramDescription (LibVLCBridging)
 
 - (instancetype)initWithMediaPlayer:(VLCMediaPlayer *)mediaPlayer program:(libvlc_player_program_t *)program;
+
+@end
+
+/**
+ * Bridges functionality between libvlc and VLCMediaSlave implementation.
+ */
+@interface VLCMediaSlave (LibVLCBridging)
+
++ (nullable instancetype)mediaSlaveWithLibVLCSlave:(const libvlc_media_slave_t *)slave;
 
 @end
 

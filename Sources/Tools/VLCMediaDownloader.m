@@ -203,15 +203,9 @@ static const struct libvlc_downloader_cbs downloader_cbs = {
 
     NSMutableArray<VLCMediaSlave *> *array = [NSMutableArray arrayWithCapacity:count];
     for (size_t i = 0; i < count; i++) {
-        libvlc_media_slave_t *slave = slaves[i];
-        if (slave->psz_uri == NULL)
-            continue;
-        NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:slave->psz_uri]];
-        if (url == nil)
-            continue;
-        VLCMediaSlaveType type = (slave->i_type == libvlc_media_slave_type_subtitle)
-                                 ? VLCMediaSlaveTypeSubtitle : VLCMediaSlaveTypeAudio;
-        [array addObject:[[VLCMediaSlave alloc] initWithURL:url type:type priority:slave->i_priority]];
+        VLCMediaSlave *slave = [VLCMediaSlave mediaSlaveWithLibVLCSlave:slaves[i]];
+        if (slave != nil)
+            [array addObject:slave];
     }
     [delegate mediaDownloadTask:self didReceiveSlaves:array];
 }

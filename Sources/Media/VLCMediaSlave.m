@@ -21,6 +21,8 @@
  *****************************************************************************/
 
 #import "VLCMediaSlave.h"
+#import "VLCLibVLCBridging.h"
+#import <vlc/libvlc.h>
 
 @implementation VLCMediaSlave
 
@@ -41,6 +43,24 @@
 {
     return [NSString stringWithFormat:@"%@ type: %lu, priority: %lu, URL: %@",
             NSStringFromClass([self class]), (unsigned long)_type, (unsigned long)_priority, _URL];
+}
+
+@end
+
+@implementation VLCMediaSlave (LibVLCBridging)
+
++ (nullable instancetype)mediaSlaveWithLibVLCSlave:(const libvlc_media_slave_t *)slave
+{
+    if (slave == NULL || slave->psz_uri == NULL)
+        return nil;
+
+    NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:slave->psz_uri]];
+    if (url == nil)
+        return nil;
+
+    VLCMediaSlaveType type = (slave->i_type == libvlc_media_slave_type_subtitle)
+                             ? VLCMediaSlaveTypeSubtitle : VLCMediaSlaveTypeAudio;
+    return [[VLCMediaSlave alloc] initWithURL:url type:type priority:slave->i_priority];
 }
 
 @end

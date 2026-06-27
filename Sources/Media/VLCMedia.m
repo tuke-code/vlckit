@@ -300,15 +300,9 @@ void close_cb(void *opaque) {
 
     NSMutableArray<VLCMediaSlave *> *slaves = [NSMutableArray arrayWithCapacity:count];
     for (unsigned int i = 0; i < count; i++) {
-        libvlc_media_slave_t *p_slave = pp_slaves[i];
-        if (p_slave->psz_uri == NULL)
-            continue;
-        NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:p_slave->psz_uri]];
-        if (url == nil)
-            continue;
-        [slaves addObject:[[VLCMediaSlave alloc] initWithURL:url
-                                                        type:(VLCMediaSlaveType)p_slave->i_type
-                                                    priority:p_slave->i_priority]];
+        VLCMediaSlave *slave = [VLCMediaSlave mediaSlaveWithLibVLCSlave:pp_slaves[i]];
+        if (slave != nil)
+            [slaves addObject:slave];
     }
     libvlc_media_slaves_release(pp_slaves, count);
     return slaves;
