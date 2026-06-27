@@ -250,15 +250,6 @@ void close_cb(void *opaque) {
     return _length;
 }
 
-- (VLCTime *)lengthWaitUntilDate:(NSDate *)aDate
-{
-    if (!_length) {
-        return [self length];
-    }
-
-    return _length;
-}
-
 - (VLCMediaParsedStatus)parsedStatus
 {
     return _parsedStatus;

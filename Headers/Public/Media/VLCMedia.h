@@ -215,20 +215,9 @@ typedef NS_ENUM(NSUInteger, VLCMediaType) {
 
 /**
  * A VLCTime object describing the length of the media resource, only if it is
- * available.  Use lengthWaitUntilDate: to wait for a specified length of time.
- * \see lengthWaitUntilDate
+ * available.
  */
 @property (nonatomic, readwrite, strong) VLCTime * length;
-
-/**
- * Returns a VLCTime object describing the length of the media resource,
- * however, this is a blocking operation and will wait until the preparsing is
- * completed before returning anything.
- * \param aDate Time for operation to wait until, if there are no results
- * before specified date then nil is returned.
- * \return The length of the media resource, nil if it couldn't wait for it.
- */
-- (VLCTime *)lengthWaitUntilDate:(NSDate *)aDate;
 
 /**
  * list of possible parsed states returnable by parsedStatus
