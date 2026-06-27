@@ -135,7 +135,8 @@
     });
 
     // Remove from libvlc's medialist
-    libvlc_media_list_remove_index(p_mlist, (int)index);
+    if (ok)
+        libvlc_media_list_remove_index(p_mlist, (int)index);
     return ok;
 }
 
