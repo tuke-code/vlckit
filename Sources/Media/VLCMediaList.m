@@ -110,6 +110,9 @@
 
 - (void)insertMedia:(VLCMedia *)media atIndex: (NSUInteger)index
 {
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
+    [self willChange:NSKeyValueChangeInsertion valuesAtIndexes:indexSet forKey:@"media"];
+
     // Add the media object to our cache
     dispatch_sync(_serialMediaObjectsQueue, ^{
         [_mediaObjects insertObject:media atIndex:index];
@@ -118,26 +121,32 @@
 
     // Add it to libvlc's medialist
     libvlc_media_list_insert_media(p_mlist, [media libVLCMediaDescriptor], (int)index);
+
+    [self didChange:NSKeyValueChangeInsertion valuesAtIndexes:indexSet forKey:@"media"];
 }
 
 - (BOOL)removeMediaAtIndex:(NSUInteger)index
 {
     __block BOOL ok = YES;
+    dispatch_sync(_serialMediaObjectsQueue, ^{
+        ok = index < [_mediaObjects count];
+    });
+
+    if (!ok)
+        return NO;
+
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
+    [self willChange:NSKeyValueChangeRemoval valuesAtIndexes:indexSet forKey:@"media"];
 
     dispatch_sync(_serialMediaObjectsQueue, ^{
-        // Remove from cached Media
-        if (index >= [_mediaObjects count]) {
-            ok = NO;
-            return;
-        }
         [_mediaObjects removeObjectAtIndex:index];
         _indexCache = nil;
     });
 
-    // Remove from libvlc's medialist
-    if (ok)
-        libvlc_media_list_remove_index(p_mlist, (int)index);
-    return ok;
+    libvlc_media_list_remove_index(p_mlist, (int)index);
+
+    [self didChange:NSKeyValueChangeRemoval valuesAtIndexes:indexSet forKey:@"media"];
+    return YES;
 }
 
 - (nullable VLCMedia *)mediaAtIndex:(NSUInteger)index
