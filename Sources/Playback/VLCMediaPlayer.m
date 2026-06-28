@@ -333,9 +333,12 @@ static void HandleMediaPlayerMediaChanged(void *opaque, libvlc_media_t *libvlc_m
     @autoreleasepool {
         VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
         [eventsHandler handleEvent:^(id _Nonnull object) {
-            VLCMedia *newMedia = (__bridge VLCMedia *)libvlc_media_get_user_data(libvlc_media);
-            if (newMedia == nil) {
-                newMedia = [VLCMedia mediaWithLibVLCMediaDescriptor:libvlc_media];
+            VLCMedia *newMedia = nil;
+            if (libvlc_media != NULL) {
+                newMedia = (__bridge VLCMedia *)libvlc_media_get_user_data(libvlc_media);
+                if (newMedia == nil) {
+                    newMedia = [VLCMedia mediaWithLibVLCMediaDescriptor:libvlc_media];
+                }
             }
             VLCMediaPlayer *mediaPlayer = (VLCMediaPlayer *)object;
             [mediaPlayer mediaPlayerMediaChanged: newMedia];

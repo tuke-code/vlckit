@@ -442,6 +442,8 @@ void close_cb(void *opaque) {
 
 + (nullable instancetype)mediaWithLibVLCMediaDescriptor:(void *)md
 {
+    if (md == NULL)
+        return nil;
     return [[VLCMedia alloc] initWithLibVLCMediaDescriptor:md];
 }
 
