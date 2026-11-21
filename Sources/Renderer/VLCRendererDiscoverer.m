@@ -122,7 +122,7 @@ static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_it
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%@ - name: %@ number of renderers: %lu", NSStringFromClass([self class]), self.name, _rendererItems.count];
+    return [NSString stringWithFormat:@"%@ - name: %@ number of renderers: %lu", NSStringFromClass([self class]), self.name, self.renderers.count];
 }
 
 - (BOOL)start
