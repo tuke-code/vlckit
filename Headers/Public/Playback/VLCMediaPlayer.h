@@ -142,6 +142,12 @@ NSString * VLCMediaPlayerStateToString(VLCMediaPlayerState state);
 - (void)mediaPlayerRateChanged:(float)rate;
 
 /**
+ * Called when the media player is corked or uncorked.
+ * \param corked YES if playback should pause, NO once it may resume
+ */
+- (void)mediaPlayerCorkChanged:(BOOL)corked;
+
+/**
  * Called when the player discovers playlist subitems.
  * \param media the playlist whose subitems changed. Its subitems property is
  * updated before this method is called.

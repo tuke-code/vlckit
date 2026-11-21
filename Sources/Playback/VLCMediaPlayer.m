@@ -275,6 +275,18 @@ static void HandleMediaPlayerRateChanged(void *opaque, float rate)
     }
 }
 
+static void HandleMediaPlayerCorkChanged(void *opaque, bool corked)
+{
+    @autoreleasepool {
+        VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
+        [eventsHandler handleEvent:^(id _Nonnull object) {
+            VLCMediaPlayer *mediaPlayer = (VLCMediaPlayer *)object;
+            if ([mediaPlayer.delegate respondsToSelector:@selector(mediaPlayerCorkChanged:)])
+                [mediaPlayer.delegate mediaPlayerCorkChanged:corked];
+        }];
+    }
+}
+
 static void HandleMediaPlayerAudioVolumeChanged(void *opaque, float volume)
 {
     @autoreleasepool {
@@ -658,6 +670,7 @@ static const struct libvlc_media_player_cbs VLCMediaPlayerCallbacks = {
     .on_program_selection_changed = HandleMediaProgramSelectionChanged,
     .on_screenshot_taken = HandleMediaPlayerSnapshot,
     .on_recording_changed = HandleMediaPlayerRecord,
+    .on_cork_changed = HandleMediaPlayerCorkChanged,
     .on_audio_volume_changed = HandleMediaPlayerAudioVolumeChanged,
     .on_next_frame_status = HandleMediaPlayerNextFrameStatus,
     .on_prev_frame_status = HandleMediaPlayerPreviousFrameStatus,
