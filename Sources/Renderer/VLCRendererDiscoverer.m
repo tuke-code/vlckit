@@ -181,29 +181,35 @@ static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_it
 
 - (NSArray<VLCRendererItem *> *)renderers
 {
-    return [_rendererItems copy];
+    @synchronized (self) {
+        return [_rendererItems copy];
+    }
 }
 
 #pragma mark - Handling libvlc event callbacks
 
 - (void)itemAdded:(VLCRendererItem *)item
 {
-    VLCRendererItem *rendererItem = [self discoveredItemsContainItem:item];
-
-    if (!rendererItem) {
+    @synchronized (self) {
+        if ([self discoveredItemsContainItem:item]) {
+            return;
+        }
         [_rendererItems addObject:item];
-        [_delegate rendererDiscovererItemAdded:self item:item];
     }
+    [_delegate rendererDiscovererItemAdded:self item:item];
 }
 
 - (void)itemDeleted:(VLCRendererItem *)item
 {
-    VLCRendererItem *rendererItem = [self discoveredItemsContainItem:item];
-
-    if (rendererItem) {
+    VLCRendererItem *rendererItem;
+    @synchronized (self) {
+        rendererItem = [self discoveredItemsContainItem:item];
+        if (!rendererItem) {
+            return;
+        }
         [_rendererItems removeObject:rendererItem];
-        [_delegate rendererDiscovererItemDeleted:self item:rendererItem];
     }
+    [_delegate rendererDiscovererItemDeleted:self item:rendererItem];
 }
 
 @end
