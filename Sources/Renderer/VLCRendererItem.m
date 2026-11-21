@@ -1,8 +1,8 @@
 /*****************************************************************************
  * VLCRendererItem.m
  *****************************************************************************
- * Copyright © 2018 VLC authors, VideoLAN
- * Copyright © 2018 Videolabs
+ * Copyright © 2018-2026 VLC authors, VideoLAN
+ * Copyright © 2018-2026 Videolabs
  *
  * Authors: Soomin Lee<bubu@mikan.io>
  *
@@ -59,8 +59,8 @@
         _type = [NSString stringWithUTF8String:libvlc_renderer_item_type(_item)];
         NSAssert(_type, @"VLCRendererItem: type is NULL");
 
-        _iconURI = [NSString stringWithUTF8String:libvlc_renderer_item_icon_uri(_item)];
-        NSAssert(_iconURI, @"VLCRendererItem: iconURI is NULL");
+        const char *iconURI = libvlc_renderer_item_icon_uri(_item);
+        _iconURI = iconURI ? [NSString stringWithUTF8String:iconURI] : nil;
 
         _flags = libvlc_renderer_item_flags(_item);
     }

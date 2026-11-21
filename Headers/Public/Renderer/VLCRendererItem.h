@@ -1,8 +1,8 @@
 /*****************************************************************************
  * VLCRendererItem.h
  *****************************************************************************
- * Copyright © 2018 VLC authors, VideoLAN
- * Copyright © 2018 Videolabs
+ * Copyright © 2018-2026 VLC authors, VideoLAN
+ * Copyright © 2018-2026 Videolabs
  *
  * Authors: Soomin Lee<bubu@mikan.io>
  *
@@ -47,9 +47,9 @@ OBJC_VISIBLE
 @property (nonatomic, readonly, copy) NSString *type;
 
 /**
- * IconURI of the renderer item
+ * IconURI of the renderer item, if any
  */
-@property (nonatomic, readonly, copy) NSString *iconURI;
+@property (nonatomic, readonly, copy, nullable) NSString *iconURI;
 
 /**
  * Flags of the renderer item
