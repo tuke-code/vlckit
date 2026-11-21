@@ -133,6 +133,9 @@ static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_it
 - (void)stop
 {
     libvlc_renderer_discoverer_stop(_rendererDiscoverer);
+    @synchronized (self) {
+        [_rendererItems removeAllObjects];
+    }
 }
 
 - (void)dealloc
