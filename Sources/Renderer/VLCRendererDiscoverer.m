@@ -1,8 +1,8 @@
 /*****************************************************************************
  * VLCRendererDiscoverer.m
  *****************************************************************************
- * Copyright © 2018 VLC authors, VideoLAN
- * Copyright © 2018 Videolabs
+ * Copyright © 2018-2026 VLC authors, VideoLAN
+ * Copyright © 2018-2026 Videolabs
  *
  * Authors: Soomin Lee<bubu@mikan.io>
  *
@@ -43,10 +43,10 @@
 static void HandleRendererDiscovererItemAdded(void *opaque, libvlc_renderer_item_t *p_item)
 {
     @autoreleasepool {
+        VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:p_item];
         VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
         [eventsHandler handleEvent:^(id _Nonnull object) {
             VLCRendererDiscoverer *rendererDiscoverer = (VLCRendererDiscoverer *)object;
-            VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:p_item];
             [rendererDiscoverer itemAdded: renderer];
         }];
     }
@@ -55,10 +55,10 @@ static void HandleRendererDiscovererItemAdded(void *opaque, libvlc_renderer_item
 static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_item_t *p_item)
 {
     @autoreleasepool {
+        VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:p_item];
         VLCEventsHandler *eventsHandler = (__bridge VLCEventsHandler *)opaque;
         [eventsHandler handleEvent:^(id _Nonnull object) {
             VLCRendererDiscoverer *rendererDiscoverer = (VLCRendererDiscoverer *)object;
-            VLCRendererItem *renderer = [[VLCRendererItem alloc] initWithRendererItem:p_item];
             [rendererDiscoverer itemDeleted: renderer];
         }];
     }
