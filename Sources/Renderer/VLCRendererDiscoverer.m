@@ -31,6 +31,7 @@
     libvlc_renderer_discoverer_t *_rendererDiscoverer;
     NSMutableArray<VLCRendererItem *> *_rendererItems;
     VLCEventsHandler *_eventsHandler;
+    BOOL _started;
 }
 
 - (void)itemAdded:(VLCRendererItem *)item;
@@ -126,12 +127,17 @@ static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_it
 
 - (BOOL)start
 {
-    return libvlc_renderer_discoverer_start(_rendererDiscoverer) == 0;
+    if (_started) {
+        return YES;
+    }
+    _started = libvlc_renderer_discoverer_start(_rendererDiscoverer) == 0;
+    return _started;
 }
 
 - (void)stop
 {
     libvlc_renderer_discoverer_stop(_rendererDiscoverer);
+    _started = NO;
     @synchronized (self) {
         [_rendererItems removeAllObjects];
     }
