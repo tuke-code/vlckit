@@ -42,7 +42,7 @@ OBJC_VISIBLE
 @property (nonatomic, readonly, copy) NSString *name;
 
 /**
- * For now, the type can only be "chromecast" ("upnp", "airplay" may come later)
+ * Type of the renderer item, such as "chromecast" or "stream_out_dlna"
  */
 @property (nonatomic, readonly, copy) NSString *type;
 

@@ -1,8 +1,8 @@
 /*****************************************************************************
  * VLCRendererDiscoverer.h
  *****************************************************************************
- * Copyright © 2018 VLC authors, VideoLAN
- * Copyright © 2018 Videolabs
+ * Copyright © 2018-2026 VLC authors, VideoLAN
+ * Copyright © 2018-2026 Videolabs
  *
  * Authors: Soomin Lee<bubu@mikan.io>
  *
@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Renderer Discoverer delegate protocol
  * Allows to be notified upon discovery/changes of an renderer item
+ * \note Called on the queue of `VLCLibrary.sharedEventsConfiguration`, or on the libvlc thread reporting the change if it has none
  */
 @protocol VLCRendererDiscovererDelegate <NSObject>
 
