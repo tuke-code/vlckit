@@ -111,7 +111,6 @@ static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_it
                                                              &cbs, (__bridge void *)(_eventsHandler));
 
         if (!_rendererDiscoverer) {
-            NSAssert(_rendererDiscoverer, @"Failed to create renderer with name %@", name);
             return nil;
         }
 
