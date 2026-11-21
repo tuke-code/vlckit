@@ -171,11 +171,9 @@ static void HandleRendererDiscovererItemDeleted(void *opaque, libvlc_renderer_it
 
 - (nullable VLCRendererItem *)discoveredItemsContainItem:(VLCRendererItem *)item
 {
+    void *libVLCRendererItem = [item libVLCRendererItem];
     for (VLCRendererItem *rendererItem in _rendererItems) {
-        BOOL hasSameName = [rendererItem.name isEqualToString:item.name];
-        BOOL hasSameType = [rendererItem.type isEqualToString:item.type];
-
-        if (hasSameName && hasSameType) {
+        if ([rendererItem libVLCRendererItem] == libVLCRendererItem) {
             return rendererItem;
         }
     }
