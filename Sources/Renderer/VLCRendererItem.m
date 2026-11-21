@@ -62,14 +62,14 @@
         const char *iconURI = libvlc_renderer_item_icon_uri(_item);
         _iconURI = iconURI ? [NSString stringWithUTF8String:iconURI] : nil;
 
-        _flags = libvlc_renderer_item_flags(_item);
+        _flags = (VLCRendererPlay)libvlc_renderer_item_flags(_item);
     }
     return self;
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%@ - name: %@ type: %@ flags: %i", NSStringFromClass([self class]), self.name, self.type, self.flags];
+    return [NSString stringWithFormat:@"%@ - name: %@ type: %@ flags: %li", NSStringFromClass([self class]), self.name, self.type, (long)self.flags];
 }
 
 - (void *)libVLCRendererItem

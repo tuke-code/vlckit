@@ -52,9 +52,9 @@ OBJC_VISIBLE
 @property (nonatomic, readonly, copy, nullable) NSString *iconURI;
 
 /**
- * Flags of the renderer item
+ * What the renderer item can play
  */
-@property (nonatomic, readonly, assign) int flags;
+@property (nonatomic, readonly, assign) VLCRendererPlay flags;
 
 /**
  * \note Unavailable, handled by `VLCRendererDiscoverer`
