@@ -1915,6 +1915,9 @@ static const struct libvlc_media_player_cbs VLCMediaPlayerCallbacks = {
         _lastInterpolatedTime = newTimePoint.ts_us;
         _lastInterpolatedPosition = newTimePoint.position;
     });
+
+    if (_cachedState != VLCMediaPlayerStatePlaying)
+        [self timeChangeUpdate];
 }
 
 - (void)mediaPlayerHandleTimeDiscontinuity:(int64_t)systemDate
